@@ -87,6 +87,11 @@ void join(std::vector<std::string> tokens, std::vector<channel> &channels, serve
             std::cerr << "the channel first character must be # or &" << std::endl;
             continue;
         }
+        if (tmp.size() == 1)
+        {
+            std::cerr << "the name is invalid" << std::endl;
+            continue;
+        }
         if (ky == "")
             _channel[tmp] = "";
         else if (std::getline(ss2, tmp1, ','))
