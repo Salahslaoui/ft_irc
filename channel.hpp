@@ -1,0 +1,63 @@
+#ifndef CHANNEL_HPP
+#define CHANNEL_HPP
+
+#define	USERALREADYJOINED 0
+#define USERISJOINED 1
+#define NOTINCHANNEL 2
+#define BANNEDFROMCHAN 3
+#define TOOMANYCHANNELS 4
+#define BADCHANNELKEY 5
+#define CHANNELISFULL 6
+#define NOSUCHCHANNEL 7
+#define USERISBANNED 8
+#define BADCHANMASK 9
+#define USERNOTINCHANNEL -1
+#define USERNOTFOUND -1
+
+#include <iostream>
+#include <vector>
+#include <map>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <cstring>
+#include <arpa/inet.h>
+#include <stdexcept>
+#include <cstdlib>
+#include <poll.h>
+#include <sstream>
+
+struct server_info
+{
+    std::string nickname;
+    std::string username;
+    int fd; // client's socket fd;
+    bool invited;
+    int has_register;
+    int PASS_flag;
+    int Nickname_flag;
+    int Username_flag;
+    
+    server_info() : fd(-1), has_register(0), PASS_flag(0), Nickname_flag(0), Username_flag(0) {}
+};
+
+class channel
+{
+    public:
+        channel();
+        std::string name;
+        std::string key;
+        std::vector<server_info *> clients;
+        std::vector<server_info *> moderators;
+        std::vector<server_info *> invited;
+        int max_clients;
+        std::string topics;
+        bool i;
+        bool o;
+        bool t;
+        bool k;
+        bool l;
+};
+
+void join(std::vector<std::string> tokens, std::vector<channel> &channels, server_info *client_connected);
+
+#endif
