@@ -1,6 +1,6 @@
-#include "../channel.hpp"
+#include "../includes/channel.hpp"
 
-void    privmsg(std::vector<std::string> tokens, std::vector<channel> &channels, server_info *client_connected)
+void    privmsg(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected)
 {
     if (tokens.size() < 3)
         return (std::cerr << "Enter the right argument" << std::endl, void());

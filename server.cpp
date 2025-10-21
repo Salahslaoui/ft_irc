@@ -1,4 +1,5 @@
-#include "channel.hpp"
+#include "includes/channel.hpp"
+#include "includes/helper.hpp"
 
 std::string server_password;
 
@@ -7,7 +8,7 @@ std::string server_password;
 //     return (channels);
 // }
 
-// server_info Server::get_info()
+// client_info Server::get_info()
 // {
 //     return (info);
 // }
@@ -17,12 +18,12 @@ std::string server_password;
 //     channels = res;
 // }
 
-// void Server::set_info(server_info res)
+// void Server::set_info(client_info res)
 // {
 //     info = res;
 // }
 
-void    accept_client(int server_fd, std::vector<pollfd> &fd, std::vector<server_info> &clients)
+void    accept_client(int server_fd, std::vector<pollfd> &fd, std::vector<client_info> &clients)
 {
     int client_fd;
     struct sockaddr_in client_addr;
@@ -36,7 +37,7 @@ void    accept_client(int server_fd, std::vector<pollfd> &fd, std::vector<server
     tmp.events = POLLIN;
     fd.push_back(tmp);
 
-    server_info client_info;
+    client_info client_info;
     client_info.fd = client_fd;
     clients.push_back(client_info);
 
@@ -44,7 +45,7 @@ void    accept_client(int server_fd, std::vector<pollfd> &fd, std::vector<server
 
 }
 
-server_info *find_the_client(int client_fd, std::vector<server_info> &clients)
+client_info *find_the_client(int client_fd, std::vector<client_info> &clients)
 {
     for(int i = 0; i < clients.size(); i++)
     {
@@ -54,18 +55,7 @@ server_info *find_the_client(int client_fd, std::vector<server_info> &clients)
     return(nullptr);
 }
 
-std::string ft_trim(std::string &str)
-{
-    size_t first = str.find_first_not_of(" ");
-    if (first == std::string::npos)
-        return("");
-    size_t last = str.find_last_not_of(" ");
-    return(str.substr(first, last - first + 1));
-}
-
-
-
-void    detecte_the_command(std::string request, server_info *client, std::vector<server_info> &clients)
+void    detecte_the_command(std::string request, client_info *client, std::vector<client_info> &clients)
 {
     try
     {
@@ -76,7 +66,7 @@ void    detecte_the_command(std::string request, server_info *client, std::vecto
                 std::string value;
                 iss >> command;
                 std::getline(iss, value);
-                value = ft_trim(value);
+                value = trim(value);
                 // std::cout << "value : " << value << std::endl;
                 if (command != "PASS")
                 {
@@ -99,7 +89,7 @@ void    detecte_the_command(std::string request, server_info *client, std::vecto
             std::string value;
             iss >> command;
             std::getline(iss, value);
-            value = ft_trim(value);
+            value = trim(value);
 
             if (command == "NICK")
             {
@@ -159,7 +149,7 @@ void    detecte_the_command(std::string request, server_info *client, std::vecto
     }
 }
 
-void    handle_the_req(server_info *client, std::vector<pollfd> &fds, std::vector<server_info> &clients)
+void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vector<client_info> &clients)
 {
     char buffer[1024];
     int byte_recived = recv(client->fd, buffer, sizeof(buffer) - 1, 0);
@@ -202,7 +192,7 @@ void    handle_the_req(server_info *client, std::vector<pollfd> &fds, std::vecto
     // set the flag
 }
 
-void Commands(char *buffer, std::vector<channel> &channels, server_info *client_connected)
+void Commands(char *buffer, std::vector<channel> &channels, client_info *client_connected)
 {
     std::string str(buffer);
     std::vector<std::string> tokens;
@@ -210,16 +200,23 @@ void Commands(char *buffer, std::vector<channel> &channels, server_info *client_
     std::string tmp;
 
     while (std::getline(ss, tmp, ' '))
-        tokens.push_back(tmp);
+	{
+		tmp = trim(tmp);      // remove \n, \r, spaces, tabs
+		if (!tmp.empty())
+			tokens.push_back(tmp);
+	}
+	
     if (tokens[0] == "JOIN")
         join(tokens, channels, client_connected);
+    else if (tokens[0] == "MODE")
+        mode(tokens, channels, client_connected);
     else
         std::cerr << "No such command!!" << std::endl;
 }
 
-void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<server_info> &clients, std::vector<channel> &channels)
+void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_info> &clients, std::vector<channel> &channels)
 {
-    server_info *client_connected = find_the_client(client_fd, clients);
+    client_info *client_connected = find_the_client(client_fd, clients);
 
     if (client_connected->has_register)
     {
@@ -301,7 +298,7 @@ int main(int ac, char *av[])
     // std::cout << server_password << std::endl;
 
     std::vector<pollfd> fds;
-    std::vector<server_info> clients;
+    std::vector<client_info> clients;
     std::vector<channel> channels;
     pollfd tmp; bzero(&tmp, sizeof (pollfd));
 
@@ -335,9 +332,9 @@ int main(int ac, char *av[])
             throw std::runtime_error("bind failed!");
 
         if (listen(server_fd, SOMAXCONN) < 0)
-            throw std::runtime_error("listen failed!");
-    }
-    catch(const std::exception& e)
+            throw std::runtime_error("listen failed!");\
+	}
+    catch (const std::exception& e)
         {
             if (server_fd == -1)
                 close(server_fd);

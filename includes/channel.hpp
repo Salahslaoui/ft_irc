@@ -13,6 +13,9 @@
 #define BADCHANMASK 9
 #define USERNOTINCHANNEL -1
 #define USERNOTFOUND -1
+#define ERR_NEEDMOREPARAMS "461"
+#define ERR_NOSUCHCHANNEL "403"
+#define ERR_CHANOPRIVSNEEDED "482"
 
 #include <iostream>
 #include <vector>
@@ -25,8 +28,9 @@
 #include <cstdlib>
 #include <poll.h>
 #include <sstream>
+#include <algorithm>
 
-struct server_info
+struct client_info
 {
     std::string nickname;
     std::string username;
@@ -37,7 +41,7 @@ struct server_info
     int Nickname_flag;
     int Username_flag;
     
-    server_info() : fd(-1), has_register(0), PASS_flag(0), Nickname_flag(0), Username_flag(0) {}
+    client_info() : fd(-1), has_register(0), PASS_flag(0), Nickname_flag(0), Username_flag(0) {}
 };
 
 class channel
@@ -46,9 +50,9 @@ class channel
         channel();
         std::string name;
         std::string key;
-        std::vector<server_info *> clients;
-        std::vector<server_info *> moderators;
-        std::vector<server_info *> invited;
+        std::vector<client_info *> clients;
+        std::vector<client_info *> moderators;
+        std::vector<client_info *> invited;
         int max_clients;
         std::string topics;
         bool i;
@@ -58,6 +62,7 @@ class channel
         bool l;
 };
 
-void join(std::vector<std::string> tokens, std::vector<channel> &channels, server_info *client_connected);
+void join(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected);
+void mode(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected);
 
 #endif

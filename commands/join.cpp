@@ -1,15 +1,7 @@
-#include "../channel.hpp"
+#include "../includes/channel.hpp"
+#include "../includes/helper.hpp"
 
-std::string trim(const std::string& s)
-{
-    size_t start = s.find_first_not_of("\r\n\t ");
-    size_t end = s.find_last_not_of("\r\n\t ");
-    if (start == std::string::npos)
-        return "";
-    return s.substr(start, end - start + 1);
-}
-
-void    create_channel(std::vector<channel> &channels, std::map<std::string, std::string>::iterator it, server_info *client, std::string &tmp)
+void    create_channel(std::vector<channel> &channels, std::map<std::string, std::string>::iterator it, client_info *client, std::string &tmp)
 {
     if (tmp != "")
     {
@@ -61,7 +53,7 @@ void    create_channel(std::vector<channel> &channels, std::map<std::string, std
     std::cout << "channel created: " << it->first << std::endl;
 }
 
-void join(std::vector<std::string> tokens, std::vector<channel> &channels, server_info *client_connected)
+void join(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected)
 {
     std::string chan;
     std::string ky;
@@ -71,11 +63,15 @@ void join(std::vector<std::string> tokens, std::vector<channel> &channels, serve
     int         err_flag = 0;
     int         alr = 0;
     std::map<std::string, std::string> _channel;
-    if (tokens.size() > 3)
-        return (std::cerr << "join argument number" << std::endl, void());
-    chan = trim(tokens[1]);
+    if (tokens.size() > 3 || tokens.size() < 2)
+	{
+		std::string error = numeric_reply(ERR_NEEDMOREPARAMS, client_connected->nickname, "JOIN", "Not enough parameters\n");
+		send(client_connected->fd,  error.c_str(), error.size(), 0);
+		return ;
+	}
+    chan = tokens[1];
     if (tokens.size() == 3)
-        ky = trim(tokens[2]);
+        ky = tokens[2];
     else
         ky = "";
     std::stringstream ss(chan);
@@ -102,16 +98,16 @@ void join(std::vector<std::string> tokens, std::vector<channel> &channels, serve
     channel add;
     for (std::map<std::string, std::string>::iterator it = _channel.begin(); it != _channel.end(); ++it)
         create_channel(channels, it, client_connected, tmp2);
-    for (int i = 0; i < channels.size(); ++i)
-    {
-        std::cout << channels[i].name << ": " << channels[i].key << std::endl;
-        std::cout << "Clients in the channel: ";
-        for (int j = 0; j < channels[i].clients.size(); ++j)
-            std::cout << channels[i].clients[j]->nickname << " ";
-        std::cout << std::endl;
-        std::cout << "Moderators in the channel" << channels[i].name << " : ";
-        for (int j = 0; j < channels[i].moderators.size(); ++j)
-            std::cout << channels[i].moderators[j]->nickname << " ";
-        std::cout << std::endl;
-    }
+    // for (int i = 0; i < channels.size(); ++i)
+    // {
+    //     std::cout << channels[i].name << ": " << channels[i].key << std::endl;
+    //     std::cout << "Clients in the channel: ";
+    //     for (int j = 0; j < channels[i].clients.size(); ++j)
+    //         std::cout << channels[i].clients[j]->nickname << " ";
+    //     std::cout << std::endl;
+    //     std::cout << "Moderators in the channel" << channels[i].name << " : ";
+    //     for (int j = 0; j < channels[i].moderators.size(); ++j)
+    //         std::cout << channels[i].moderators[j]->nickname << " ";
+    //     std::cout << std::endl;
+    // }
 }
