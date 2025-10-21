@@ -16,7 +16,7 @@
 #define ERR_NEEDMOREPARAMS "461"
 #define ERR_NOSUCHCHANNEL "403"
 #define ERR_CHANOPRIVSNEEDED "482"
-
+#define ERR_UNKNOWNMODE "472"
 #include <iostream>
 #include <vector>
 #include <map>
