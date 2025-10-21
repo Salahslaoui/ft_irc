@@ -14,12 +14,21 @@
 #define USERNOTINCHANNEL -1
 #define USERNOTFOUND -1
 #define ERR_NEEDMOREPARAMS "461"
+#define RPL_ENDOFNAMES "366"
+#define ERR_BADCHANNAME	"479"
 #define ERR_NOSUCHCHANNEL "403"
+#define ERR_INVITEONLYCHAN "473"
+#define ERR_BADCHANNELKEY "475"
+#define ERR_CHANNELISFULL ":471"
+#define RPL_NAMREPLY ":353"
+#define RPL_CHANNELMODEIS "324"
 #define ERR_CHANOPRIVSNEEDED "482"
 #define ERR_UNKNOWNMODE "472"
+
 #include <iostream>
 #include <vector>
 #include <map>
+#include <deque>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
@@ -48,11 +57,14 @@ class channel
 {
     public:
         channel();
+        std::string get_client_ip(int client_fd);
+        void broadcast(std::string msg, client_info client);
+        // std::string Modes();
         std::string name;
         std::string key;
-        std::vector<client_info *> clients;
-        std::vector<client_info *> moderators;
-        std::vector<client_info *> invited;
+        std::vector<client_info> clients;
+        std::vector<client_info> moderators;
+        std::vector<client_info> invited;
         int max_clients;
         std::string topics;
         bool i;
@@ -62,7 +74,8 @@ class channel
         bool l;
 };
 
-void join(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected);
-void mode(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected);
+void join(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
+void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
+void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 
 #endif

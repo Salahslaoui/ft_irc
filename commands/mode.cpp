@@ -10,31 +10,42 @@ void send_numeric(client_info* client, const std::string& code,
 }
 
 // checks if the client is an operator in the specified channel
-bool check_if_op(channel* di_channel, client_info *client)
+// bool check_if_op(channel* di_channel, client_info *client)
+// {
+//     // Print all moderators
+// 	exit(0);
+//     std::cout << "Moderators in channel " << di_channel->name << ": ";
+//     for (std::vector<client_info>::const_iterator it = di_channel->moderators.begin();
+//          it != di_channel->moderators.end(); ++it)
+//     {
+//         std::cout << (it)->nickname << " ";
+//     }
+//     std::cout << std::endl;
+
+//     // Check if the given client is an operator
+//     std::vector<client_info>::const_iterator it =
+//         std::find(di_channel->moderators.begin(),
+//                   di_channel->moderators.end(),
+//                   client);
+
+//     return (it != di_channel->moderators.end());
+// }
+
+bool check_if_op(channel* di_channel, client_info* client)
 {
-    // Print all moderators
-	exit(0);
-    std::cout << "Moderators in channel " << di_channel->name << ": ";
-    for (std::vector<client_info*>::const_iterator it = di_channel->moderators.begin();
+    for (std::vector<client_info>::const_iterator it = di_channel->moderators.begin();
          it != di_channel->moderators.end(); ++it)
     {
-        std::cout << (*it)->nickname << " ";
+        if (it->nickname == client->nickname) // simple comparison
+            return true;
     }
-    std::cout << std::endl;
-
-    // Check if the given client is an operator
-    std::vector<client_info*>::const_iterator it =
-        std::find(di_channel->moderators.begin(),
-                  di_channel->moderators.end(),
-                  client);
-
-    return (it != di_channel->moderators.end());
+    return false;
 }
 
 // find the channel that has the same name in the list of channels
-channel* find_channel(const std::string &channel_to_find, std::vector<channel> &channels)
+channel* find_channel(const std::string &channel_to_find, std::deque<channel> &channels)
 {
-	for (std::vector<channel>::iterator it = channels.begin(); it != channels.end(); it++)
+	for (std::deque<channel>::iterator it = channels.begin(); it != channels.end(); it++)
 	{
 		if (channel_to_find == it->name)
 			return &(*it);
@@ -43,7 +54,7 @@ channel* find_channel(const std::string &channel_to_find, std::vector<channel> &
 }
 
 // MODE <channel> {[+|-]|i|t|k|o|l} [<parameter>]
-void mode(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected)
+void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected)
 {
 	std::string channel_name;
 	channel* di_channel;

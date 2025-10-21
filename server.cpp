@@ -192,7 +192,7 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
     // set the flag
 }
 
-void Commands(char *buffer, std::vector<channel> &channels, client_info *client_connected)
+void Commands(char *buffer, std::deque<channel> &channels, client_info *client_connected)
 {
     std::string str(buffer);
     std::vector<std::string> tokens;
@@ -214,7 +214,7 @@ void Commands(char *buffer, std::vector<channel> &channels, client_info *client_
         std::cerr << "No such command!!" << std::endl;
 }
 
-void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_info> &clients, std::vector<channel> &channels)
+void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_info> &clients, std::deque<channel> &channels)
 {
     client_info *client_connected = find_the_client(client_fd, clients);
 
@@ -299,7 +299,7 @@ int main(int ac, char *av[])
 
     std::vector<pollfd> fds;
     std::vector<client_info> clients;
-    std::vector<channel> channels;
+    std::deque<channel> channels;
     pollfd tmp; bzero(&tmp, sizeof (pollfd));
 
     int server_fd = -1;
