@@ -24,7 +24,7 @@
 #define RPL_CHANNELMODEIS "324"
 #define ERR_CHANOPRIVSNEEDED "482"
 #define ERR_UNKNOWNMODE "472"
-
+#define ERR_USERNOTINCHANNEL "441"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -77,5 +77,6 @@ class channel
 void join(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
 void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
-
+void send_numeric(client_info* client, const std::string& code,
+                  const std::string& target, const std::string& message);
 #endif

@@ -14,3 +14,11 @@ std::string numeric_reply(const std::string& code, const std::string& nick, cons
 {
     return ":localhost " + code + " " + nick + " " + command + " :" + message;
 }
+
+// helper function to send a numeric reply to a client
+void send_numeric(client_info* client, const std::string& code,
+                  const std::string& target, const std::string& message)
+{
+    std::string error = numeric_reply(code, client->nickname, target, message);
+    send(client->fd, error.c_str(), error.size(), 0);
+}
