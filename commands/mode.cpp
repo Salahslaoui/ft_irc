@@ -64,8 +64,6 @@ void modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 	}
 }
 
-
-
 // MODE <channel> {[+|-]|i|t|k|o|l} [<parameter>]
 void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected)
 {
@@ -144,11 +142,52 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 					send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n");
 					continue;
 				}
-				di_channel->l = add;
-				// di_channel->max_clients = 
+
+				std::string limit_str = tokens[args_start++];
+				long long_limit = 0;
+				bool valid = true;
+
+				// Check that all characters are digits
+				for (size_t j = 0; j < limit_str.size(); j++)
+				{
+					if (!isdigit(limit_str[j]))
+					{
+						valid = false;
+						break;
+					}
+				}
+
+				if (!valid)
+				{
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", ":Invalid user limit\n");
+					continue;
+				}
+
+				long_limit = atol(limit_str.c_str());
+				if (long_limit > INT_MAX)
+				{
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", ":User limit too big\n");
+					continue;
+				}
+
+				if (long_limit <= 0)
+				{
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", ":User limit must be positive\n");
+					continue;
+				}
+
+				// safe to assign
+				di_channel->l = true;
+				di_channel->max_clients = static_cast<int>(long_limit);
+			}
+			else
+			{
+				// Removing the limit
+				di_channel->l = false;
+				di_channel->max_clients = 0;
 			}
 		}
+		else
+			send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1, modes[i]), "is unknown mode char to me\n");
 	}
-
-	send(client_connected->fd, "l7waaa\n", 8, 0);
 }

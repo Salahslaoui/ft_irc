@@ -25,6 +25,7 @@
 #define ERR_CHANOPRIVSNEEDED "482"
 #define ERR_UNKNOWNMODE "472"
 #define ERR_USERNOTINCHANNEL "441"
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -38,6 +39,7 @@
 #include <poll.h>
 #include <sstream>
 #include <algorithm>
+#include <limits.h>
 
 struct client_info
 {
