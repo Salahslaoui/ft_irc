@@ -192,7 +192,7 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
     // set the flag
 }
 
-void Commands(char *buffer, std::deque<channel> &channels, client_info *client_connected)
+void Commands(char *buffer, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients)
 {
     std::string str(buffer);
     std::vector<std::string> tokens;
@@ -204,12 +204,16 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
 		tmp = trim(tmp);      // remove \n, \r, spaces, tabs
 		if (!tmp.empty())
 			tokens.push_back(tmp);
+        else
+            return (send_numeric(client_connected, ERR_BADCHANNAME, "UKNOWN", "you must enter something\r\n"));
 	}
 	
     if (tokens[0] == "JOIN")
         join(tokens, channels, client_connected);
     else if (tokens[0] == "MODE")
         mode(tokens, channels, client_connected);
+    // else if (tokens[0] == "PRIVMSG")
+    //     privmsg(tokens, channels, client_connected, clients);
     else
         std::cerr << "No such command!!" << std::endl;
 }
@@ -253,7 +257,7 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
                 request.pop_back();
         }
         // std::cout << "command lil: " << buffer << std::endl;
-        Commands(buffer, channels, client_connected);
+        Commands(buffer, channels, client_connected, clients);
     }
     else
     {
