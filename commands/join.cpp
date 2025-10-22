@@ -38,7 +38,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
         channels.push_back(add);
         return std::cout << "channel created: " << it->first << std::endl, void();
     }
-    for (int i = 0; i < channels.size(); ++i)
+    for (size_t i = 0; i < channels.size(); ++i)
     {
         if (it->first == channels[i].name)
         {
@@ -92,7 +92,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     int         alr = 0;
     std::map<std::string, std::string> _channel;
     if (tokens.size() > 3 || tokens.size() < 2)
-		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "Not enough parameters\n"));
+		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters\r\n"));
     chan = tokens[1];
     if (tokens.size() == 3)
         ky = tokens[2];
@@ -114,7 +114,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
         }
         if (tmp.size() == 1)
         {
-            std::cerr << "the name is invalid" << std::endl;
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
             continue;
         }
         if (ky == "")
@@ -127,6 +127,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     channel add;
     for (std::map<std::string, std::string>::iterator it = _channel.begin(); it != _channel.end(); ++it)
         create_channel(channels, it, client_connected, tmp2);
+    std::cout << "\n\n    ||||||||     \n" <<std::endl;
     for (int i = 0; i < channels.size(); ++i)
     {
         std::cout << channels[i].name << ": " << channels[i].key << std::endl;

@@ -17,7 +17,7 @@
 #define RPL_ENDOFNAMES "366"
 #define ERR_BADCHANNAME	"479"
 #define ERR_NOSUCHCHANNEL "403"
-// #define ERR_CHANNELISFULL "471"
+#define ERR_NOSUCHNICK "401"
 #define ERR_INVITEONLYCHAN "473"
 #define ERR_BADCHANNELKEY "475"
 #define ERR_CHANNELISFULL ":471"
@@ -81,6 +81,6 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
 void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
-void privmsg(std::vector<std::string> tokens, std::vector<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
+void privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
 
 #endif

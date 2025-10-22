@@ -205,15 +205,20 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
 		if (!tmp.empty())
 			tokens.push_back(tmp);
         else
-            return (send_numeric(client_connected, ERR_BADCHANNAME, "UKNOWN", "you must enter something\r\n"));
+        {
+            if (tokens.empty())
+                return (send_numeric(client_connected, ERR_BADCHANNAME, "UKNOWN", "you must enter something\r\n"));
+            else
+                continue;
+        }
 	}
 	
     if (tokens[0] == "JOIN")
         join(tokens, channels, client_connected);
     else if (tokens[0] == "MODE")
         mode(tokens, channels, client_connected);
-    // else if (tokens[0] == "PRIVMSG")
-    //     privmsg(tokens, channels, client_connected, clients);
+    else if (tokens[0] == "PRIVMSG")
+        privmsg(tokens, channels, client_connected, clients);
     else
         std::cerr << "No such command!!" << std::endl;
 }
