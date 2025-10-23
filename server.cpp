@@ -219,6 +219,8 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
         mode(tokens, channels, client_connected);
     else if (tokens[0] == "PRIVMSG")
         privmsg(tokens, channels, client_connected, clients);
+    else if (tokens[0] == "TOPIC")
+        topic(tokens, channels, client_connected);
     else
         std::cerr << "No such command!!" << std::endl;
 }
@@ -257,9 +259,9 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
         else
         {
             buffer[byte_recived] = '\0';
-            std::string request = buffer;
-            if (request.back() == '\n')
-                request.pop_back();
+            // std::string request = buffer;
+            // if (request.back() == '\n')
+            //     request.pop_back();
         }
         // std::cout << "command lil: " << buffer << std::endl;
         Commands(buffer, channels, client_connected, clients);

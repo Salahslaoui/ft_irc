@@ -12,7 +12,7 @@ std::string trim(const std::string& s)
 
 std::string numeric_reply(const std::string& code, const std::string& nick, const std::string& command, const std::string& message)
 {
-    return ":localhost " + code + " " + nick + " " + command + " :" + message;
+    return ":localhost " + code + " " + nick + " " + command + " :" + message + "\r\n";
 }
 
 // helper function to send a numeric reply to a client

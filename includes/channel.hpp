@@ -20,13 +20,13 @@
 #define ERR_NOSUCHNICK "401"
 #define ERR_INVITEONLYCHAN "473"
 #define ERR_BADCHANNELKEY "475"	
-#define ERR_CHANNELISFULL ":471"
-#define RPL_NAMREPLY ":353"
+#define ERR_CHANNELISFULL "471"
+#define RPL_NAMREPLY "353"
 #define RPL_CHANNELMODEIS "324"
 #define ERR_CHANOPRIVSNEEDED "482"
 #define ERR_UNKNOWNMODE "472"
 #define ERR_USERNOTINCHANNEL "441"
-
+#define ERR_NOTONCHANNEL "442"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -82,5 +82,6 @@ void send_numeric(client_info* client, const std::string& code, const std::strin
 void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
 void privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
+void topic(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 
 #endif

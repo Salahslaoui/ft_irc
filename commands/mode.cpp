@@ -45,7 +45,11 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	if (!(di_channel = find_channel(channel_name, channels)))
 		return (send_numeric(client_connected, ERR_NOSUCHCHANNEL, channel_name, "No such channel\n"));
 
-	// check if the client is an operator
+	// check if the client is a member in the channel
+	if (!find_client(client_connected->nickname, di_channel->clients))
+		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel\n"));
+	
+		// check if the client is an operator
 	if (!check_if_op(di_channel, client_connected->nickname))
 		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator\n"));
 	
