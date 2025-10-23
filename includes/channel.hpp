@@ -70,7 +70,7 @@ class channel
     public:
         channel();
         std::string get_client_ip(int client_fd);
-        void broadcast(std::string msg, client_info client);
+		void broadcast(const std::string& msg);
         // std::string Modes();
         std::string name;
         std::string key;

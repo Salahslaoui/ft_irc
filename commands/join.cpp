@@ -64,7 +64,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     std::cout << channels[i].clients[1].nickname << " a33" << std::endl;
                     std::cout << std::endl;
                     channels[i].broadcast(std::string(":" + client->nickname + "!" + client->username + "@" 
-                        + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name + "\r\n").c_str(), *client);
+                        + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name + "\r\n").c_str());
                     return (std::cout << "the client " << client->nickname << " has joined " << channels[i].name << std::endl, void());
                 }
             }

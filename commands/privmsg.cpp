@@ -32,7 +32,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
                 if (targets[i] == channels[j].name)
                 {
                     flag = 1;
-                    channels[j].broadcast(msg, *client_connected);
+                    channels[j].broadcast(msg);
                     break;
                 }
             }

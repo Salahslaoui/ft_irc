@@ -133,12 +133,24 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
             }
 
             if (client->PASS_flag && client->Nickname_flag && client->Username_flag)
-            {
-                client->has_register = 1;
-                std::string msg = "You are now registered!\n";
-                send(client->fd, msg.c_str(), msg.size(), 0);
-                std::cout << "Client " << client->fd << " registered with nickname: " << client->nickname << " and username: " << client->username << std::endl;
-            }
+			{
+				client->has_register = 1;
+				std::string nick = client->nickname;
+				std::string server_name = "irc.localhost";
+
+				std::string welcome =
+					":" + server_name + " 001 " + nick + " :Welcome to the IRC network, " + nick + "!\r\n" +
+					":" + server_name + " 002 " + nick + " :Your host is " + server_name + "\r\n" +
+					":" + server_name + " 003 " + nick + " :This server was created today\r\n" +
+					":" + server_name + " 004 " + nick + " " + server_name + " 1.0 o o\r\n" +
+					":" + server_name + " 375 " + nick + " :- " + server_name + " Message of the day - \r\n" +
+					":" + server_name + " 372 " + nick + " :- Welcome to this minimal IRC server!\r\n" +
+					":" + server_name + " 376 " + nick + " :End of /MOTD command.\r\n";
+
+				send(client->fd, welcome.c_str(), welcome.size(), 0);
+				std::cout << "Client registered: " << client->nickname << " (" << client->username << ")" << std::endl;
+			}
+
 
             // handle the two others command]
         }
@@ -219,13 +231,19 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
         mode(tokens, channels, client_connected);
     else if (tokens[0] == "PRIVMSG")
         privmsg(tokens, channels, client_connected, clients);
-<<<<<<< HEAD
     else if (tokens[0] == "TOPIC")
         topic(tokens, channels, client_connected);
-=======
     else if (tokens[0] == "INVITE")
         invite(channels, client_connected, clients, tokens);
->>>>>>> 0aa919627a881c7c6c5bf4239ececac1bc994974
+	else if (tokens[0] == "PING")
+	{
+		if (tokens.size() > 1)
+		{
+			std::string pong = "PONG " + tokens[1] + "\r\n";
+			send(client_connected->fd, pong.c_str(), pong.size(), 0);
+		}
+	}
+
     else
         std::cerr << "No such command!!" << std::endl;
 }

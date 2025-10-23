@@ -127,20 +127,20 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 
 				if (!valid)
 				{
-					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", ":Invalid user limit\n");
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "Invalid user limit\n");
 					continue;
 				}
 
 				long_limit = atol(limit_str.c_str());
 				if (long_limit > INT_MAX)
 				{
-					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", ":User limit too big\n");
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "User limit too big\n");
 					continue;
 				}
 
 				if (long_limit <= 0)
 				{
-					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", ":User limit must be positive\n");
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "User limit must be positive\n");
 					continue;
 				}
 
@@ -156,6 +156,13 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 			}
 		}
 		else
-			send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1, modes[i]), "is unknown mode char to me\n");
+			send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1, modes[i]), " is unknown mode char to me\n");
 	}
+	// ✅ Broadcast the mode change to everyone in the channel
+	std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
+	                            "@localhost MODE " + di_channel->name + " " + tokens[2];
+	for (size_t i = 3; i < tokens.size(); i++)
+		broadcast_msg += " " + tokens[i];
+
+	di_channel->broadcast(broadcast_msg);
 }
