@@ -1,6 +1,13 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
+
+//    INVITE
+#define RPL_INVITING "341"
+
+
+
+
 #define	USERALREADYJOINED 0
 #define USERISJOINED 1
 #define NOTINCHANNEL 2
@@ -16,6 +23,8 @@
 #define ERR_NEEDMOREPARAMS "461"
 #define RPL_ENDOFNAMES "366"
 #define ERR_BADCHANNAME	"479"
+#define ERR_NOTONCHANNEL "442"
+#define ERR_USERONCHANNEL "443"
 #define ERR_NOSUCHCHANNEL "403"
 #define ERR_NOSUCHNICK "401"
 #define ERR_INVITEONLYCHAN "473"
@@ -78,6 +87,10 @@ class channel
 };
 
 void join(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
+void invite(std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients, std::vector<std::string> tokens);
+channel* find_channel(const std::string &channel_to_find, std::deque<channel> &channels);
+client_info* find_client(const std::string &client_to_find, std::vector<client_info> &clients);
+client_info* check_if_op(channel* di_channel, std::string client);
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
 void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);

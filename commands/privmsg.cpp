@@ -5,7 +5,7 @@ std::string parse_msg(std::vector<std::string> tokens)
     std::string tmp = "";
 
     if (tokens[2][0] != ':')
-        return tokens[2];
+        return (tokens[2] + '\n');
     if (tokens[2][0] == ':')
     {
         tmp += tokens[2].substr(tokens[2].find(':') + 1);

@@ -28,6 +28,7 @@ client_info* find_client(const std::string &client_to_find, std::vector<client_i
 // checks if the client is an operator in the specified channel
 client_info* check_if_op(channel* di_channel, std::string client)
 {
+	std::cout << client << std::endl;
 	for (std::vector<client_info>::iterator it = di_channel->moderators.begin(); it != di_channel->moderators.end(); it++)
 	{
 		if (client == it->nickname)
