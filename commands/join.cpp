@@ -38,30 +38,29 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
         channels.push_back(add);
         return std::cout << "channel created: " << it->first << std::endl, void();
     }
-    for (int i = 0; i < channels.size(); ++i)
+    for (size_t i = 0; i < channels.size(); ++i)
     {
-        if ((channels[i].l == 1 && channels[i].clients.size() + 1 <= channels[i].max_clients) || channels[i].l == 0)
+        if (it->first == channels[i].name)
         {
-            if (it->first == channels[i].name)
+            if ((channels[i].l == 1 && channels[i].clients.size() + 1 <= channels[i].max_clients) || channels[i].l == 0)
             {
                 tmp = it->second;
                 for (int j = 0; j < channels[i].clients.size(); ++j)
-                {
-                    
+                {     
                     if (client->nickname == channels[i].clients[j].nickname)
-                        return std::cerr << "This User already exist in this channel" << std::endl, void();
+                        return (std::cerr << "This User already exist in this channel" << std::endl, void());
                 }
                 if (channels[i].i && !client_invited(channels[i], client))
                     return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel\r\n"));
                 else if (channels[i].l && max_clients(channels[i]))
-                    return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "the limit is reached"));
+                    return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "the limit is reached\r\n"));
                 else if (channels[i].k && it->second != channels[i].key)
                     return (send_numeric(client, ERR_BADCHANNELKEY, "JOIN", "Key is wrong\r\n"));
                 else
                 {
                     std::string msg;
                     channels[i].clients.push_back(*client);
-                    std::cout << "Cli[ents in the cha]nnel: " << channels[i].clients.size() << std::endl;
+                    std::cout << "Clients in the channel: " << channels[i].clients.size() << std::endl;
                     std::cout << channels[i].clients[1].nickname << " a33" << std::endl;
                     std::cout << std::endl;
                     channels[i].broadcast(std::string(":" + client->nickname + "!" + client->username + "@" 
@@ -69,9 +68,9 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     return (std::cout << "the client " << client->nickname << " has joined " << channels[i].name << std::endl, void());
                 }
             }
+            else
+                return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "The Channel is full\r\n"));
         }
-        else
-            return (std::cerr << "cannot join limit of clients exeeded" << std::endl, void());
     }
     channel add;
     add.name = it->first;
@@ -93,7 +92,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     int         alr = 0;
     std::map<std::string, std::string> _channel;
     if (tokens.size() > 3 || tokens.size() < 2)
-		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "Not enough parameters\n"));
+		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters\r\n"));
     chan = tokens[1];
     if (tokens.size() == 3)
         ky = tokens[2];
@@ -115,7 +114,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
         }
         if (tmp.size() == 1)
         {
-            std::cerr << "the name is invalid" << std::endl;
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
             continue;
         }
         if (ky == "")
@@ -128,17 +127,17 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     channel add;
     for (std::map<std::string, std::string>::iterator it = _channel.begin(); it != _channel.end(); ++it)
         create_channel(channels, it, client_connected, tmp2);
-
-    // for (int i = 0; i < channels.size(); ++i)
-    // {
-    //     std::cout << channels[i].name << ": " << channels[i].key << std::endl;
-    //     std::cout << "Clients in the channel: ";
-    //     for (int j = 0; j < channels[i].clients.size(); ++j)
-    //         std::cout << channels[i].clients[j]->nickname << " ";
-    //     std::cout << std::endl;
-    //     std::cout << "Moderators in the channel" << channels[i].name << " : ";
-    //     for (int j = 0; j < channels[i].moderators.size(); ++j)
-    //         std::cout << channels[i].moderators[j]->nickname << " ";
-    //     std::cout << std::endl;
-    // }
+    std::cout << "\n\n    ||||||||     \n" <<std::endl;
+    for (int i = 0; i < channels.size(); ++i)
+    {
+        std::cout << channels[i].name << ": " << channels[i].key << std::endl;
+        std::cout << "Clients in the channel: ";
+        for (int j = 0; j < channels[i].clients.size(); ++j)
+            std::cout << channels[i].clients[j].nickname << " ";
+        std::cout << std::endl;
+        std::cout << "Moderators in the channel" << channels[i].name << " : ";
+        for (int j = 0; j < channels[i].moderators.size(); ++j)
+            std::cout << channels[i].moderators[j].nickname << " ";
+        std::cout << "\n\n    ||||||||     \n" <<std::endl;
+    }
 }
