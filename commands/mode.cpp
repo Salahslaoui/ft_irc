@@ -6,7 +6,7 @@ void modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 	client_info *client = find_client(Client_to_add, di_channel->clients);
 
 	if (!client)
-		return (send_numeric(client_connected, ERR_USERNOTINCHANNEL, Client_to_add + di_channel->name, ":They aren't on that channel\n"));
+		return (send_numeric(client_connected, ERR_USERNOTINCHANNEL, Client_to_add + di_channel->name, "They aren't on that channel\n"));
 	if (to_add)
 	{
 		if (!check_if_op(di_channel, Client_to_add))
@@ -164,5 +164,5 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	for (size_t i = 3; i < tokens.size(); i++)
 		broadcast_msg += " " + tokens[i];
 
-	di_channel->broadcast(broadcast_msg);
+	di_channel->broadcast(broadcast_msg, *client_connected);
 }

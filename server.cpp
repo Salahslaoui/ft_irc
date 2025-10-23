@@ -115,16 +115,23 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
 
 
             else if (command == "USER")
-            {
-                if (value.empty())
-                {
-                    std::string error = "Error: username cannot be empty!\n";
-                    send(client->fd, error.c_str(), error.size(), 0);
-                    throw std::runtime_error("username cannot be empty!");
-                }
-                client->username = value;
-                client->Username_flag = 1;
-            }
+			{
+				if (value.empty())
+				{
+					std::string error = "Error: username cannot be empty!\n";
+					send(client->fd, error.c_str(), error.size(), 0);
+					throw std::runtime_error("username cannot be empty!");
+				}
+
+				// Extract the first word (first element) from value
+				std::istringstream iss(value);
+				std::string first_word;
+				iss >> first_word;
+
+				client->username = first_word;
+				client->Username_flag = 1;
+			}
+
             else
             {
                 std::string error = "Error: command invalid!\n";
@@ -243,9 +250,6 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
 			send(client_connected->fd, pong.c_str(), pong.size(), 0);
 		}
 	}
-
-    else
-        std::cerr << "No such command!!" << std::endl;
 }
 
 void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_info> &clients, std::deque<channel> &channels)

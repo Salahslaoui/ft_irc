@@ -32,7 +32,9 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
                 if (targets[i] == channels[j].name)
                 {
                     flag = 1;
-                    channels[j].broadcast(msg);
+					std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
+							"@localhost PRIVMSG " + channels[j].name + " :" + msg;
+                    channels[j].broadcast(broadcast_msg, *client_connected);
                     break;
                 }
             }
@@ -51,7 +53,9 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
         {
             if (targets[i] == clients[j].nickname)
             {
-                send(clients[j].fd, msg.c_str(), msg.size(), 0);
+				std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
+							"@localhost PRIVMSG " + clients[j].nickname + " :" + msg;
+                send(clients[j].fd, broadcast_msg.c_str(), broadcast_msg.size(), 0);
                 flag = 1;
                 break;
             }
@@ -92,5 +96,6 @@ void    privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, 
         targets.push_back(tmp);
     }
     msg = parse_msg(tokens);
+
     check_and_send(targets, channels, client_connected, clients, msg);
 }

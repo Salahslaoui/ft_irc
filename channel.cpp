@@ -3,13 +3,16 @@
 channel::channel() : i(false), o(false), t(false), k(false), l(false), max_clients(0)
 {}
 
-void channel::broadcast(const std::string& msg)
+void channel::broadcast(const std::string& msg, const client_info& sender)
 {
     std::string message = msg;
-	message += "\r\n";
+    message += "\r\n";
 
     for (size_t i = 0; i < clients.size(); ++i)
     {
+        if (clients[i].fd == sender.fd)
+            continue; // skip the sender
+
         ssize_t sent = send(clients[i].fd, message.c_str(), message.size(), 0);
         if (sent == -1)
             perror(("send failed to " + clients[i].nickname).c_str());
@@ -17,6 +20,7 @@ void channel::broadcast(const std::string& msg)
             std::cerr << "Warning: partial send to " << clients[i].nickname << std::endl;
     }
 }
+
 
 
 // std::string channel::Modes()

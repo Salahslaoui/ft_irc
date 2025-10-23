@@ -64,7 +64,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     std::cout << channels[i].clients[1].nickname << " a33" << std::endl;
                     std::cout << std::endl;
                     channels[i].broadcast(std::string(":" + client->nickname + "!" + client->username + "@" 
-                        + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name + "\r\n").c_str());
+                        + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name + "\r\n").c_str(), *client);
                     return (std::cout << "the client " << client->nickname << " has joined " << channels[i].name << std::endl, void());
                 }
             }
@@ -92,7 +92,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     int         alr = 0;
     std::map<std::string, std::string> _channel;
     if (tokens.size() > 3 || tokens.size() < 2)
-		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters\r\n"));
+		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters"));
     chan = tokens[1];
     if (tokens.size() == 3)
         ky = tokens[2];
@@ -104,17 +104,17 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     {
         if (tmp[0] != '#' && tmp[0] != '&')
         {
-            send_numeric(client_connected, ERR_NOSUCHCHANNEL, "JOIN", "No such channel\r\n");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "No such channel");
             continue;
         }
         if (tmp.find(7) != std::string::npos || tmp.size() > 20)
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name");
             continue;
         }
         if (tmp.size() == 1)
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name");
             continue;
         }
         if (ky == "")
