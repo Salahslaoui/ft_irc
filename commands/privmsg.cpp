@@ -34,7 +34,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
                     flag = 1;
 					std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
 							"@localhost PRIVMSG " + channels[j].name + " :" + msg;
-                    channels[j].broadcast(broadcast_msg, *client_connected);
+                    channels[j].broadcast(broadcast_msg, *client_connected, true);
                     break;
                 }
             }

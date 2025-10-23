@@ -8,6 +8,8 @@ void topic(std::vector<std::string> tokens, std::deque<channel> &channels, clien
 	std::string modes;
 	bool add = true;
 	int args_start = 3;
+
+	
 	// checks if it has valid args
 	if (tokens.size() < 2)
 		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "TOPIC", "Not enough parameters\n"));
@@ -22,7 +24,7 @@ void topic(std::vector<std::string> tokens, std::deque<channel> &channels, clien
 		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel\n"));
 	
 		// check if the client is an operator
-	if (!di_channel->t && !check_if_op(di_channel, client_connected->nickname))
+	if (!di_channel->t && !check_if_op(di_channel, client_connected->nickname) && tokens.size() != 2)
 		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator\n"));
 
 }

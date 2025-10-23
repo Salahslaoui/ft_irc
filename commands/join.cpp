@@ -63,8 +63,8 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     std::cout << "Clients in the channel: " << channels[i].clients.size() << std::endl;
                     std::cout << channels[i].clients[1].nickname << " a33" << std::endl;
                     std::cout << std::endl;
-                    channels[i].broadcast(std::string(":" + client->nickname + "!" + client->username + "@" 
-                        + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name + "\r\n").c_str(), *client);
+                    channels[i].broadcast(std::string(":" + client->nickname + "!~" + client->username + "@" 
+                        + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name).c_str(), *client, false);
                     return (std::cout << "the client " << client->nickname << " has joined " << channels[i].name << std::endl, void());
                 }
             }
@@ -92,7 +92,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     int         alr = 0;
     std::map<std::string, std::string> _channel;
     if (tokens.size() > 3 || tokens.size() < 2)
-		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters"));
+		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters\r\n"));
     chan = tokens[1];
     if (tokens.size() == 3)
         ky = tokens[2];

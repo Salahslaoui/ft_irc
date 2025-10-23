@@ -164,5 +164,5 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	for (size_t i = 3; i < tokens.size(); i++)
 		broadcast_msg += " " + tokens[i];
 
-	di_channel->broadcast(broadcast_msg, *client_connected);
+	// di_channel->broadcast(broadcast_msg, *client_connected, false);
 }
