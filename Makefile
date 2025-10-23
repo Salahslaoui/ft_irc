@@ -1,5 +1,9 @@
 NAME = exec
+<<<<<<< HEAD
 SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privmsg.cpp helpers/helpers.cpp commands/topic.cpp
+=======
+SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privmsg.cpp commands/invite.cpp helpers/helpers.cpp
+>>>>>>> 0aa919627a881c7c6c5bf4239ececac1bc994974
 OBJ = $(SRC:%.cpp=%.o)
 INCLUDE = includes/channel.hpp includes/helper.hpp
 

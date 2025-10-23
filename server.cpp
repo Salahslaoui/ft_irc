@@ -219,8 +219,13 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
         mode(tokens, channels, client_connected);
     else if (tokens[0] == "PRIVMSG")
         privmsg(tokens, channels, client_connected, clients);
+<<<<<<< HEAD
     else if (tokens[0] == "TOPIC")
         topic(tokens, channels, client_connected);
+=======
+    else if (tokens[0] == "INVITE")
+        invite(channels, client_connected, clients, tokens);
+>>>>>>> 0aa919627a881c7c6c5bf4239ececac1bc994974
     else
         std::cerr << "No such command!!" << std::endl;
 }
