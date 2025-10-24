@@ -21,6 +21,35 @@ int max_clients(channel &channel)
     return 0;
 }
 
+void send_it(client_info* client, const std::string& message)
+{
+	send(client->fd, message.c_str(),message.size(), 0);
+}
+
+std::string build_names_list(const channel& chan)
+{
+    std::string list;
+
+    for (size_t i = 0; i < chan.clients.size(); ++i)
+    {
+        const client_info& c = chan.clients[i];
+        std::string prefix = "";
+        for (size_t j = 0; j < chan.moderators.size(); ++j)
+        {
+            if (chan.moderators[j].nickname == c.nickname)
+            {
+                prefix = "@"; // operator
+                break;
+            }
+        }
+        if (i != 0)
+            list += " ";
+        list += prefix + c.nickname;
+    }
+
+    return list;
+}
+
 void    create_channel(std::deque<channel> &channels, std::map<std::string, std::string>::iterator it, client_info *client, std::string &tmp)
 {
     if (tmp != "")
@@ -36,7 +65,19 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
         add.clients.push_back(*client);
         add.moderators.push_back(*client);
         channels.push_back(add);
-        return std::cout << "channel created: " << it->first << std::endl, void();
+	
+    	std::string server_name = "irc.localhost";
+    	std::string join_msg = ":" + client->nickname + "!" + client->username +
+                           "@" + channels[0].get_client_ip(client->fd) +
+                           " JOIN :" + add.name + "\r\n";
+    	send(client->fd, join_msg.c_str(), join_msg.size(), 0);
+		std::string user_list = build_names_list(channels[0]);
+		std::string POSTFIX = "\r\n";
+		std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[0].name + " :@" + client->nickname	+ POSTFIX;
+		send_it(client, msg);
+		msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[0].name + " " + ":End of NAMES list" + POSTFIX;
+		send_it(client, msg);
+    	return;
     }
     for (size_t i = 0; i < channels.size(); ++i)
     {
@@ -58,13 +99,24 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     return (send_numeric(client, ERR_BADCHANNELKEY, "JOIN", "Key is wrong\r\n"));
                 else
                 {
-                    std::string msg;
                     channels[i].clients.push_back(*client);
+					std::string join_msg = ":" + client->nickname + "!" + client->username +
+										"@" + channels[i].get_client_ip(client->fd) +
+										" JOIN :" + channels[i].name + "\r\n";
+                    channels[i].broadcast(join_msg.c_str(), *client, true);
+					send(client->fd, join_msg.c_str(), join_msg.size(), 0);
+					std::string POSTFIX = "\r\n";
+    				std::string server_name = "irc.localhost";
+					std::string list = build_names_list(channels[i]);
+					std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[i].name + " " + list + POSTFIX;
+					send_it(client, msg);
+					msg = ":" + server_name + " " + RPL_ENDOFNAMES + " " + client->nickname + " = " + channels[i].name + " " + ":End of NAMES list" + POSTFIX;
+					send_it(client, msg);
                     std::cout << "Clients in the channel: " << channels[i].clients.size() << std::endl;
                     std::cout << channels[i].clients[1].nickname << " a33" << std::endl;
                     std::cout << std::endl;
-                    channels[i].broadcast(std::string(":" + client->nickname + "!~" + client->username + "@" 
-                        + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name).c_str(), *client, false);
+                    // channels[i].broadcast(std::string(":" + client->nickname + "!~" + client->username + "@" 
+                    //     + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name).c_str(), *client, false);
                     return (std::cout << "the client " << client->nickname << " has joined " << channels[i].name << std::endl, void());
                 }
             }
@@ -79,6 +131,20 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
     add.moderators.push_back(*client);
     channels.push_back(add);
     std::cout << "channel created: " << it->first << std::endl;
+    std::string server_name = "irc.localhost";
+	std::string list = build_names_list(add);
+
+    // JOIN message
+    std::string join_msg = ":" + client->nickname + "!" + client->username +
+                        "@" + add.get_client_ip(client->fd) +
+                        " JOIN :" + add.name + "\r\n";
+    send(client->fd, join_msg.c_str(), join_msg.size(), 0);
+	std::string POSTFIX = "\r\n";
+	std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + add.name + " " + list + POSTFIX;
+	send_it(client, msg);
+	msg = ":" + server_name + " " + RPL_ENDOFNAMES + " " + client->nickname + " = " + add.name + " " + ":End of NAMES list" + POSTFIX;
+	send_it(client, msg);
+    return;
 }
 
 void join(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected)
@@ -104,17 +170,17 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     {
         if (tmp[0] != '#' && tmp[0] != '&')
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "No such channel");
+            send_numeric(client_connected, ERR_NOSUCHCHANNEL, "JOIN", "No such channel\r\n");
             continue;
         }
         if (tmp.find(7) != std::string::npos || tmp.size() > 20)
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
             continue;
         }
         if (tmp.size() == 1)
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
             continue;
         }
         if (ky == "")

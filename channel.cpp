@@ -11,7 +11,7 @@ void channel::broadcast(const std::string& msg, const client_info& sender, bool 
     for (size_t i = 0; i < clients.size(); ++i)
     {
         if (flag && clients[i].fd == sender.fd)
-            continue; // skip the sender
+            continue;
 
         ssize_t sent = send(clients[i].fd, message.c_str(), message.size(), 0);
         if (sent == -1)

@@ -5,7 +5,9 @@
 //    INVITE
 #define RPL_INVITING "341"
 
-
+#define RPL_NAMREPLY "353"
+// #define RPL_NAMREPLY(sender,channel,users) (std::string(":353 ") + sender + " = " + channel + " :" + users + POSTFIX)
+#define RPL_ENDOFNAMES "366"
 
 
 #define	USERALREADYJOINED 0
@@ -30,10 +32,11 @@
 #define ERR_INVITEONLYCHAN "473"
 #define ERR_BADCHANNELKEY "475"	
 #define ERR_CHANNELISFULL "471"
-#define RPL_NAMREPLY "353"
+// #define RPL_NAMREPLY "353"
 #define RPL_CHANNELMODEIS "324"
 #define ERR_CHANOPRIVSNEEDED "482"
 #define ERR_UNKNOWNMODE "472"
+#define ERR_BADCHANMASK "476"
 #define ERR_USERNOTINCHANNEL "441"
 #define ERR_NOTONCHANNEL "442"
 #define RPL_TOPIC "332"
