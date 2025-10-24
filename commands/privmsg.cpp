@@ -31,10 +31,11 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             {
                 if (targets[i] == channels[j].name)
                 {
+					std::cout << "PRIVMSG     \\ " << msg << std::endl;
                     flag = 1;
 					std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
 							"@localhost PRIVMSG " + channels[j].name + " :" + msg;
-                    channels[j].broadcast(broadcast_msg, *client_connected);
+                    channels[j].broadcast(msg, *client_connected);
                     break;
                 }
             }
@@ -54,7 +55,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             if (targets[i] == clients[j].nickname)
             {
 				std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
-							"@localhost PRIVMSG " + clients[j].nickname + " :" + msg;
+							"@localhost PRIVMSG " + clients[j].nickname + msg;
                 send(clients[j].fd, broadcast_msg.c_str(), broadcast_msg.size(), 0);
                 flag = 1;
                 break;
