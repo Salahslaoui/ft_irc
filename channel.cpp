@@ -3,15 +3,15 @@
 channel::channel() : i(false), o(false), t(false), k(false), l(false), max_clients(0)
 {}
 
-void channel::broadcast(const std::string& msg, const client_info& sender)
+void channel::broadcast(const std::string& msg, const client_info& sender, bool flag)
 {
     std::string message = msg;
     message += "\r\n";
 
     for (size_t i = 0; i < clients.size(); ++i)
     {
-        if (clients[i].fd == sender.fd)
-            continue; // skip the sender
+        if (flag && clients[i].fd == sender.fd)
+            continue;
 
         ssize_t sent = send(clients[i].fd, message.c_str(), message.size(), 0);
         if (sent == -1)

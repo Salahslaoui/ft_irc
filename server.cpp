@@ -231,8 +231,8 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
                 continue;
         }
 	}
-	
-    if (tokens[0] == "JOIN")
+	for (int i = 0; i < tokens.size(); i++)
+		std::cout << tokens[i] << std::endl; if (tokens[0] == "JOIN")
         join(tokens, channels, client_connected);
     else if (tokens[0] == "MODE")
         mode(tokens, channels, client_connected);
