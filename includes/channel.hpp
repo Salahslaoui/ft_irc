@@ -41,6 +41,7 @@
 #define ERR_NOTONCHANNEL "442"
 #define RPL_TOPIC "332"
 #define RPL_NOTOPIC "331"
+#define ERR_UNKNOWNCOMMAND "421"
 
 #include <iostream>
 #include <vector>
