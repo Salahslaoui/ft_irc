@@ -31,7 +31,6 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             {
                 if (targets[i] == channels[j].name)
                 {
-					std::cout << "PRIVMSG     \\ " << msg << std::endl;
                     flag = 1;
 					std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
 							"@localhost PRIVMSG " + channels[j].name + " :" + msg;
@@ -42,7 +41,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             }
             if (flag == 0)
             {
-                send_numeric(client_connected, ERR_NOSUCHCHANNEL, "PRIVMSG", "This channel doesn't exist\r\n");
+                send_numeric(client_connected, ERR_NOSUCHCHANNEL, "PRIVMSG", "This channel doesn't exist");
                 continue;
             }
             else
@@ -79,12 +78,11 @@ void    privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, 
     std::string msg;
 
     if (tokens.size() < 3)
-        return (std::cerr << "Enter the right argument" << std::endl, void());
+        return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "PRIVMSG", "Invalid numbers of arguments"));
     if (tokens[1][0] == '#')
     {
         if (tokens[1].size() == 1)
-            return (std::cerr << "the channel name is invalid" << std::endl, void());
-        
+            return (send_numeric(client_connected, ERR_BADCHANNAME, "PRIVMSG", "Invalid channel name"));
     }
     target = tokens[1];
     std::stringstream ss(target);
@@ -92,7 +90,7 @@ void    privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, 
     {
         if (tmp.size() == 1 && (tmp[0] == '&' || tmp[0] == '#'))
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "PRIVMSG", "Invalid channel name\r\n");
+            send_numeric(client_connected, ERR_BADCHANNAME, "PRIVMSG", "Invalid channel name");
             continue;
         }
         targets.push_back(tmp);

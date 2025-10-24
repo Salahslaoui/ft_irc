@@ -75,7 +75,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
 		std::string POSTFIX = "\r\n";
 		std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[0].name + " :@" + client->nickname	+ POSTFIX;
 		send_it(client, msg);
-		msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[0].name + " " + ":End of NAMES list" + POSTFIX;
+		msg = ":" + server_name + " " + RPL_ENDOFNAMES + " " + client->nickname + " = " + channels[0].name + " " + ":End of NAMES list" + POSTFIX;
 		send_it(client, msg);
     	return;
     }
