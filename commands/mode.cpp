@@ -40,7 +40,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	std::string modes;
 	bool add = true;
 	size_t args_start = 3;
-
+	size_t count = 0;
 	// Use a vector of pairs to preserve insertion order
 	std::vector<std::pair<char, std::string> > valid_modes;
 
@@ -188,6 +188,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 		if ((valid_modes[i].first == '+' || valid_modes[i].first == '-') && (i + 1 >= valid_modes.size()
 			|| valid_modes[i + 1].first == '+' || valid_modes[i + 1].first == '-'))
 			continue;
+		count++;
 		broadcast_msg += valid_modes[i].first;
 	}
 
@@ -197,7 +198,6 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 		if (!valid_modes[i].second.empty())
 			broadcast_msg += " " + valid_modes[i].second;
 	}
-
-	std::cout << broadcast_msg << std::endl;
-	di_channel->broadcast(broadcast_msg, *client_connected, false);
+	if (count)
+		di_channel->broadcast(broadcast_msg, *client_connected, false);
 }

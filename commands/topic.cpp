@@ -6,17 +6,11 @@ void set_topic(channel &topic_channel, std::vector<std::string> tokens)
 	std::string new_topic;
 
 	if (tokens[2][0] == ':')
-		new_topic = tokens[2].substr(1, tokens[2].size() - 1) + " ";
+		new_topic = tokens[2].substr(1, tokens[2].size() - 1);
 	else
-		new_topic = tokens[2] + " ";
-
+		new_topic = tokens[2];
 	for (size_t i = 3; i < tokens.size(); i++)
-	{
-		if (i == tokens.size() - 1)
-			new_topic += tokens[i];
-		else
-			new_topic += tokens[i] + " ";
-	}
+			new_topic += " " + tokens[i];
 	topic_channel.topic = new_topic; 
 }
 
@@ -39,7 +33,7 @@ void topic(std::vector<std::string> tokens, std::deque<channel> &channels, clien
 		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel\n"));
 	
 		// check if the client is an operator
-	if (!di_channel->t && !check_if_op(di_channel, client_connected->nickname) && tokens.size() != 2)
+	if (di_channel->t && !check_if_op(di_channel, client_connected->nickname) && tokens.size() != 2)
 		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator\n"));
 
 	if (tokens.size() == 2)

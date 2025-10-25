@@ -563,7 +563,7 @@ int   parse_the_input(char *av[])
 
 void f()
 {
-	system ("leaks exec 6667 alae");
+	system ("leaks ircserv 6667 alae");
 }
 
 int main(int ac, char *av[])
@@ -572,7 +572,7 @@ int main(int ac, char *av[])
 
     if (ac != 3)
     {
-        std::cout << "entre the right argumments!" << std::endl;
+        std::cout << "enter the right argumments!" << std::endl;
         exit(1);
     }
 
@@ -651,6 +651,3 @@ int main(int ac, char *av[])
         }
     }
 }
-
-
-// USER ff 0 * :r

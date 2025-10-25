@@ -91,7 +91,6 @@ class channel
         std::string topic;
 		bool topic_flag;
         bool i;
-        bool o;
         bool t;
         bool k;
         bool l;
