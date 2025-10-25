@@ -61,7 +61,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
         add.moderators.push_back(*client);
         channels.push_back(add);
 	
-    	std::string server_name = "irc.localhost";
+    	std::string server_name = "ircserv";
     	std::string join_msg = ":" + client->nickname + "!" + client->username +
                            "@" + channels[0].get_client_ip(client->fd) +
                            " JOIN :" + add.name + "\r\n";
@@ -85,7 +85,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     if (client->nickname == channels[i].clients[j].nickname)
                         return (send_numeric(client, ERR_USERONCHANNEL, "JOIN", "User already exist in this channel"));
                 }
-                if (channels[i].i && !client_invited(channels[i], client))
+                if (channels[i].i)
                     return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel\r\n"));
                 else if (channels[i].l && max_clients(channels[i]))
                     return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "the limit is reached\r\n"));
@@ -100,17 +100,13 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     channels[i].broadcast(join_msg.c_str(), *client, true);
 					send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 					std::string POSTFIX = "\r\n";
-    				std::string server_name = "irc.localhost";
+    				std::string server_name = "ircserv";
 					std::string list = build_names_list(channels[i]);
-					std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[i].name + " " + list + POSTFIX;
+					std::cout << list << std::endl;
+					std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[i].name + " :" + list + POSTFIX;
 					send_it(client, msg);
 					msg = ":" + server_name + " " + RPL_ENDOFNAMES + " " + client->nickname + " = " + channels[i].name + " " + ":End of NAMES list" + POSTFIX;
 					send_it(client, msg);
-                    std::cout << "Clients in the channel: " << channels[i].clients.size() << std::endl;
-                    std::cout << channels[i].clients[1].nickname << " a33" << std::endl;
-                    std::cout << std::endl;
-                    // channels[i].broadcast(std::string(":" + client->nickname + "!~" + client->username + "@" 
-                    //     + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name).c_str(), *client, false);
                     return (std::cout << "the client " << client->nickname << " has joined " << channels[i].name << std::endl, void());
                 }
             }
@@ -180,17 +176,4 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     channel add;
     for (std::map<std::string, std::string>::iterator it = _channel.begin(); it != _channel.end(); ++it)
         create_channel(channels, it, client_connected);
-    std::cout << "\n\n    ||||||||     \n" <<std::endl;
-    for (size_t i = 0; i < channels.size(); ++i)
-    {
-        std::cout << channels[i].name << ": " << channels[i].key << std::endl;
-        std::cout << "Clients in the channel: ";
-        for (size_t j = 0; j < channels[i].clients.size(); ++j)
-            std::cout << channels[i].clients[j].nickname << " ";
-        std::cout << std::endl;
-        std::cout << "Moderators in the channel" << channels[i].name << " : ";
-        for (size_t j = 0; j < channels[i].moderators.size(); ++j)
-            std::cout << channels[i].moderators[j].nickname << " ";
-        std::cout << "\n\n    ||||||||     \n" <<std::endl;
-    }
 }

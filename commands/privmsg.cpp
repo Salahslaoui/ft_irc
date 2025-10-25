@@ -1,11 +1,26 @@
 #include "../includes/channel.hpp"
 
+std::string get_client_ipp(int client_fd)
+{
+    struct sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
+    char ip[INET_ADDRSTRLEN];
+
+    if (getpeername(client_fd, (struct sockaddr*)&addr, &addr_len) == -1)
+        return "unknown";
+
+    if (inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN) == NULL)
+        return "unknown";
+
+    return std::string(ip);
+}
+
 std::string parse_msg(std::vector<std::string> tokens)
 {
     std::string tmp = "";
 
     if (tokens[2][0] != ':')
-        return (tokens[2] + '\n');
+        return (tokens[2] + "\r\n");
     if (tokens[2][0] == ':')
     {
         tmp += tokens[2].substr(tokens[2].find(':') + 1);
@@ -37,8 +52,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
 						{
 							flag = 1;
 							std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
-									"@localhost PRIVMSG " + channels[j].name + " :" + msg;
-							channels[j].broadcast(msg, *client_connected, true);
+									"@" + channels[j].get_client_ip(client_connected->fd) +  " PRIVMSG " + channels[j].name + " :" + msg;
 							channels[j].broadcast(broadcast_msg, *client_connected, true);
 							break;
 						}
@@ -67,7 +81,8 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             if (targets[i] == clients[j].nickname)
             {
 				std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
-							"@localhost PRIVMSG " + clients[j].nickname + msg;
+							"@" + get_client_ipp(client_connected->fd) + " PRIVMSG " + clients[j].nickname + " :" + msg;
+				std::cout << broadcast_msg << std::endl;
                 send(clients[j].fd, broadcast_msg.c_str(), broadcast_msg.size(), 0);
                 flag = 1;
                 break;
@@ -78,7 +93,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             flag = 0;
             continue;
         }
-        send_numeric(client_connected, ERR_NOSUCHNICK, "PRIVMSG", "This client doesn't exist\r\n");
+        return (send_numeric(client_connected, ERR_NOSUCHNICK, "PRIVMSG", "This client doesn't exist\r\n"));
     }
 }
 
@@ -108,6 +123,5 @@ void    privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, 
         targets.push_back(tmp);
     }
     msg = parse_msg(tokens);
-
     check_and_send(targets, channels, client_connected, clients, msg);
 }

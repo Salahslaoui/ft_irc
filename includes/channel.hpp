@@ -107,5 +107,6 @@ void send_numeric(client_info* client, const std::string& code, const std::strin
 void privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
 void topic(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
+std::string get_client_ipp(int client_fd);
 
 #endif
