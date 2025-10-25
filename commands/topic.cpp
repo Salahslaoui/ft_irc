@@ -11,7 +11,12 @@ void set_topic(channel &topic_channel, std::vector<std::string> tokens)
 		new_topic = tokens[2] + " ";
 
 	for (int i = 3; i < tokens.size(); i++)
-		new_topic += tokens[i] + " ";
+	{
+		if (i == tokens.size() - 1)
+			new_topic += tokens[i];
+		else
+			new_topic += tokens[i] + " ";
+	}
 	topic_channel.topic = new_topic; 
 }
 

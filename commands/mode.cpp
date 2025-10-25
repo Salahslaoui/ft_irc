@@ -17,7 +17,7 @@ bool modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 	}
 	else
 	{
-		if (di_channel->moderators.size() == 1)
+		if (di_channel->moderators.size() == 1 && check_if_op(di_channel, Client_to_add))
     		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, di_channel->name, "Cannot remove the only channel operator\n"), false);
 		for (std::vector<client_info>::iterator it = di_channel->moderators.begin();
 			it != di_channel->moderators.end(); ++it)
