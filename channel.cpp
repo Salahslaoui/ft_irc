@@ -1,6 +1,6 @@
 #include "includes/channel.hpp"
 
-channel::channel() : i(false), o(false), t(false), k(false), l(false), max_clients(0)
+channel::channel() : i(false), o(false), t(false), k(false), l(false), max_clients(0), topic_flag(false)
 {}
 
 void channel::broadcast(const std::string& msg, const client_info& sender, bool flag)

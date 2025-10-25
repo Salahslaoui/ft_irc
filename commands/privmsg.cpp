@@ -22,6 +22,7 @@ std::string parse_msg(std::vector<std::string> tokens)
 void    check_and_send(std::vector<std::string> targets, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients, std::string msg)
 {
     int flag = 0;
+    int flag1 = 0;
 
     for(size_t i = 0; i < targets.size(); ++i)
     {
@@ -31,12 +32,24 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             {
                 if (targets[i] == channels[j].name)
                 {
-                    flag = 1;
-					std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
-							"@localhost PRIVMSG " + channels[j].name + " :" + msg;
-                    channels[j].broadcast(msg, *client_connected, true);
-                    channels[j].broadcast(broadcast_msg, *client_connected, true);
-                    break;
+					for (size_t k = 0; k < channels[j].clients.size(); ++k)
+					{
+						if (channels[j].clients[k].nickname == client_connected->nickname)
+						{
+							flag = 1;
+							std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
+									"@localhost PRIVMSG " + channels[j].name + " :" + msg;
+							channels[j].broadcast(msg, *client_connected, true);
+							channels[j].broadcast(broadcast_msg, *client_connected, true);
+							break;
+						}
+					}
+					if (flag == 0)
+					{
+						send_numeric(client_connected, ERR_USERNOTINCHANNEL, "PRIVMSG", "The user is not in this channel");
+						flag = 1;
+						break;
+					}
                 }
             }
             if (flag == 0)

@@ -39,6 +39,9 @@
 #define ERR_BADCHANMASK "476"
 #define ERR_USERNOTINCHANNEL "441"
 #define ERR_NOTONCHANNEL "442"
+#define RPL_TOPIC "332"
+#define RPL_NOTOPIC "331"
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -81,7 +84,8 @@ class channel
         std::vector<client_info> moderators;
         std::vector<client_info> invited;
         int max_clients;
-        std::string topics;
+        std::string topic;
+		bool topic_flag;
         bool i;
         bool o;
         bool t;
@@ -99,5 +103,6 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
 void privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
 void topic(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
+void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 
 #endif

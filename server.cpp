@@ -231,8 +231,6 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
                 continue;
         }
 	}
-	for (int i = 0; i < tokens.size(); i++)
-		std::cout << tokens[i] << std::endl;
 	if (tokens[0] == "JOIN")
         join(tokens, channels, client_connected);
     else if (tokens[0] == "MODE")
@@ -243,6 +241,8 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
         topic(tokens, channels, client_connected);
     else if (tokens[0] == "INVITE")
         invite(channels, client_connected, clients, tokens);
+    else if (tokens[0] == "KICK")
+        kick(tokens, channels, client_connected);
 	else if (tokens[0] == "PING")
 	{
 		if (tokens.size() > 1)
