@@ -61,7 +61,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
         add.moderators.push_back(*client);
         channels.push_back(add);
 	
-    	std::string server_name = "irc.localhost";
+    	std::string server_name = "ircserv";
     	std::string join_msg = ":" + client->nickname + "!" + client->username +
                            "@" + channels[0].get_client_ip(client->fd) +
                            " JOIN :" + add.name + "\r\n";
@@ -100,9 +100,10 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     channels[i].broadcast(join_msg.c_str(), *client, true);
 					send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 					std::string POSTFIX = "\r\n";
-    				std::string server_name = "irc.localhost";
+    				std::string server_name = "ircserv";
 					std::string list = build_names_list(channels[i]);
-					std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[i].name + " " + list + POSTFIX;
+					std::cout << list << std::endl;
+					std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[i].name + " :" + list + POSTFIX;
 					send_it(client, msg);
 					msg = ":" + server_name + " " + RPL_ENDOFNAMES + " " + client->nickname + " = " + channels[i].name + " " + ":End of NAMES list" + POSTFIX;
 					send_it(client, msg);
