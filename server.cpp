@@ -414,6 +414,11 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
     {
         send_numeric_user(client_connected, "462");
     }
+    else if (tokens[0] == "PONG")
+    {
+    // std::cout << "Received PONG from client " << client_connected->nickname << std::endl;
+    return; // no further processing
+    }
     else
         send_numeric(client_connected, "421", tokens[0], "Unknown command");
 }
