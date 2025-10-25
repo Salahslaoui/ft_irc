@@ -87,7 +87,7 @@ class channel
         std::vector<client_info> clients;
         std::vector<client_info> moderators;
         std::vector<client_info> invited;
-        int max_clients;
+        size_t max_clients;
         std::string topic;
 		bool topic_flag;
         bool i;

@@ -3,7 +3,7 @@
 
 int client_invited(channel &channel, client_info *client)
 {
-    for (int i = 0; i < channel.invited.size(); ++i)
+    for (size_t i = 0; i < channel.invited.size(); ++i)
     {
         if (channel.invited[i].nickname == client->nickname)
         {
@@ -80,7 +80,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
         {
             if ((channels[i].l == 1 && channels[i].clients.size() + 1 <= channels[i].max_clients) || channels[i].l == 0)
             {
-                for (int j = 0; j < channels[i].clients.size(); ++j)
+                for (size_t j = 0; j < channels[i].clients.size(); ++j)
                 {     
                     if (client->nickname == channels[i].clients[j].nickname)
                         return (send_numeric(client, ERR_USERONCHANNEL, "JOIN", "User already exist in this channel"));
@@ -147,8 +147,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     std::string ky;
     std::string tmp;
     std::string tmp1;
-    int         err_flag = 0;
-    int         alr = 0;
+
     std::map<std::string, std::string> _channel;
     if (tokens.size() > 3 || tokens.size() < 2)
 		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters\r\n"));
@@ -182,15 +181,15 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     for (std::map<std::string, std::string>::iterator it = _channel.begin(); it != _channel.end(); ++it)
         create_channel(channels, it, client_connected);
     std::cout << "\n\n    ||||||||     \n" <<std::endl;
-    for (int i = 0; i < channels.size(); ++i)
+    for (size_t i = 0; i < channels.size(); ++i)
     {
         std::cout << channels[i].name << ": " << channels[i].key << std::endl;
         std::cout << "Clients in the channel: ";
-        for (int j = 0; j < channels[i].clients.size(); ++j)
+        for (size_t j = 0; j < channels[i].clients.size(); ++j)
             std::cout << channels[i].clients[j].nickname << " ";
         std::cout << std::endl;
         std::cout << "Moderators in the channel" << channels[i].name << " : ";
-        for (int j = 0; j < channels[i].moderators.size(); ++j)
+        for (size_t j = 0; j < channels[i].moderators.size(); ++j)
             std::cout << channels[i].moderators[j].nickname << " ";
         std::cout << "\n\n    ||||||||     \n" <<std::endl;
     }
