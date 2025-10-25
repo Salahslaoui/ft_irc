@@ -10,7 +10,7 @@ void set_topic(channel &topic_channel, std::vector<std::string> tokens)
 	else
 		new_topic = tokens[2] + " ";
 
-	for (int i = 3; i < tokens.size(); i++)
+	for (size_t i = 3; i < tokens.size(); i++)
 	{
 		if (i == tokens.size() - 1)
 			new_topic += tokens[i];
@@ -24,10 +24,6 @@ void topic(std::vector<std::string> tokens, std::deque<channel> &channels, clien
 {
 	std::string channel_name;
 	channel* di_channel;
-	std::string modes;
-	bool add = true;
-	int args_start = 3;
-
 	
 	// checks if it has valid args
 	if (tokens.size() < 2 || (tokens[1][0] == ':' && tokens[1].size() == 1))

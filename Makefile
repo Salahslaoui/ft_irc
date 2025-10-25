@@ -3,7 +3,8 @@ SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privms
 OBJ = $(SRC:%.cpp=%.o)
 INCLUDE = includes/channel.hpp includes/helper.hpp
 
-CC = c++ -g
+CC = c++
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)
 
@@ -12,7 +13,7 @@ $(NAME): $(OBJ)
 	@echo "Executable linked successfully!"
 
 %.o: %.cpp $(INCLUDE)
-	@$(CC) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled $<"
 
 clean:

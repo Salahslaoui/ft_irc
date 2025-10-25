@@ -22,7 +22,6 @@ std::string parse_msg(std::vector<std::string> tokens)
 void    check_and_send(std::vector<std::string> targets, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients, std::string msg)
 {
     int flag = 0;
-    int flag1 = 0;
 
     for(size_t i = 0; i < targets.size(); ++i)
     {

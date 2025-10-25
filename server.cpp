@@ -66,7 +66,7 @@ void    accept_client(int server_fd, std::vector<pollfd> &fd, std::vector<client
 
 client_info *find_the_client(int client_fd, std::vector<client_info> &clients)
 {
-    for(int i = 0; i < clients.size(); i++)
+    for(size_t i = 0; i < clients.size(); i++)
     {
         if (clients[i].fd == client_fd)
             return &clients[i];
@@ -397,7 +397,7 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
                 continue;
         }
 	}
-	for (int i = 0; i < tokens.size(); i++)
+	for (size_t i = 0; i < tokens.size(); i++)
 		std::cout << tokens[i] << " ";
 	std::cout << std::endl;
 	if (tokens[0] == "JOIN")
@@ -521,10 +521,10 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
         handle_the_req(client_connected, fds, clients); // must handle it }
 }
 
-int helper_parse(std::string str)
+size_t helper_parse(std::string str)
 {
-    int i = 0;
-    int res = 0;
+    size_t i = 0;
+    size_t res = 0;
     while (i <= str.size())
     {
         if (str[i] == ' ' || str[i] == '\t')
