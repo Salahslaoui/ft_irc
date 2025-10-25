@@ -102,7 +102,6 @@ bool is_valid_nickname(const std::string &nick)
     return true;
 }
 
-
 void parce_nickname(std::string value, client_info *client)
 {
     if (value.find(' ') != std::string::npos)
@@ -162,7 +161,7 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
                         throw std::runtime_error("error :Password incorrect");
 
                 }
-                client->PASS_flag = 1;
+                        client->PASS_flag = 1;
             }
         else
         {
@@ -359,8 +358,9 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
             return;
         }
         std::cout << "command is : " << request << std::endl;
+        std::cout << "the flag id : " << client->PASS_flag << std::endl;
         // Handle the parsed command
-        if (buffer[0] == '\n')
+        if (buffer[0] == '\n' && request.empty())
             return;
         detecte_the_command(request, client, clients);
 }
@@ -511,8 +511,22 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
         handle_the_req(client_connected, fds, clients); // must handle it }
 }
 
+int helper_parse(std::string str)
+{
+    int i = 0;
+    int res = 0;
+    while (i <= str.size())
+    {
+        if (str[i] == ' ' || str[i] == '\t')
+            res++;
+        i++;
+    }
+    return res;
+}
+
 int   parse_the_input(char *av[])
 {
+    std::string str = av[1];
     int i = 0;
     while(av[0][i] != '\0')
     {
@@ -528,6 +542,11 @@ int   parse_the_input(char *av[])
     {
         std::cerr << "Invalid port!" << std::endl;
         return 0;
+    }
+    if (str.empty() || helper_parse(str) == str.size())
+    {
+        std::cerr << "Invalid password!" << std::endl;
+        return(0);
     }
     return(1);
 }
