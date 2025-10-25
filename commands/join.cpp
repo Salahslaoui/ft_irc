@@ -85,12 +85,12 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     if (client->nickname == channels[i].clients[j].nickname)
                         return (send_numeric(client, ERR_USERONCHANNEL, "JOIN", "User already exist in this channel"));
                 }
-                if (channels[i].i)
-                    return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel\r\n"));
-                else if (channels[i].l && max_clients(channels[i]))
+                if (channels[i].l && max_clients(channels[i]))
                     return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "the limit is reached\r\n"));
                 else if (channels[i].k && it->second != channels[i].key)
                     return (send_numeric(client, ERR_BADCHANNELKEY, "JOIN", "Key is wrong\r\n"));
+                else if (channels[i].i && !client_invited(channels[i], client))
+                    return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel\r\n"));
                 else
                 {
                     channels[i].clients.push_back(*client);
@@ -130,7 +130,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                         " JOIN :" + add.name + "\r\n";
     send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 	std::string POSTFIX = "\r\n";
-	std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + add.name + " " + list + POSTFIX;
+	std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + add.name + " :" + list + POSTFIX;
 	send_it(client, msg);
 	msg = ":" + server_name + " " + RPL_ENDOFNAMES + " " + client->nickname + " = " + add.name + " " + ":End of NAMES list" + POSTFIX;
 	send_it(client, msg);
