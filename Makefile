@@ -3,7 +3,7 @@ SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privms
 OBJ = $(SRC:%.cpp=%.o)
 INCLUDE = includes/channel.hpp includes/helper.hpp
 
-CC = c++ 
+CC = c++ -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)
 

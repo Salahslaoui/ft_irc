@@ -317,17 +317,7 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
         }
         return;
     }
-      buffer[bytes_received] = '\0';
-	if (client->leftover.size() > 512) 
-	{
-		std::cerr << "Client " << client->fd << " sent too much data without newline — disconnecting.\n";
-		close(client->fd);
-    	for (size_t i = 0; i < fds.size(); i++)
-        	if (fds[i].fd == client->fd) fds.erase(fds.begin() + i);
-    	for (size_t i = 0; i < clients.size(); i++)
-        	if (clients[i].fd == client->fd) clients.erase(clients.begin() + i);
-    	return;
-}
+    buffer[bytes_received] = '\0';
     client->leftover += buffer; // append new data to any partial previous data
 
     size_t pos;
@@ -627,6 +617,7 @@ int main(int ac, char *av[])
         }
     
     std::cout << "the server start listening on port " << av[1] << ":)" << std::endl;
+	signal(SIGPIPE, SIG_IGN);
     while (server_running)
     {
         try

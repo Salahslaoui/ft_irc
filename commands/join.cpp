@@ -180,17 +180,4 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     channel add;
     for (std::map<std::string, std::string>::iterator it = _channel.begin(); it != _channel.end(); ++it)
         create_channel(channels, it, client_connected);
-    std::cout << "\n\n    ||||||||     \n" <<std::endl;
-    for (size_t i = 0; i < channels.size(); ++i)
-    {
-        std::cout << channels[i].name << ": " << channels[i].key << std::endl;
-        std::cout << "Clients in the channel: ";
-        for (size_t j = 0; j < channels[i].clients.size(); ++j)
-            std::cout << channels[i].clients[j].nickname << " ";
-        std::cout << std::endl;
-        std::cout << "Moderators in the channel" << channels[i].name << " : ";
-        for (size_t j = 0; j < channels[i].moderators.size(); ++j)
-            std::cout << channels[i].moderators[j].nickname << " ";
-        std::cout << "\n\n    ||||||||     \n" <<std::endl;
-    }
 }
