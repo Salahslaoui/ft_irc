@@ -292,7 +292,7 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
 
 void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vector<client_info> &clients)
 {
-    char buffer[1024];
+    char buffer[2048];
     int bytes_received = recv(client->fd, buffer, sizeof(buffer) - 1, 0);
     if (bytes_received <= 0)
     {
@@ -318,6 +318,16 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
         return;
     }
       buffer[bytes_received] = '\0';
+	if (client->leftover.size() > 512) 
+	{
+		std::cerr << "Client " << client->fd << " sent too much data without newline — disconnecting.\n";
+		close(client->fd);
+    	for (size_t i = 0; i < fds.size(); i++)
+        	if (fds[i].fd == client->fd) fds.erase(fds.begin() + i);
+    	for (size_t i = 0; i < clients.size(); i++)
+        	if (clients[i].fd == client->fd) clients.erase(clients.begin() + i);
+    	return;
+}
     client->leftover += buffer; // append new data to any partial previous data
 
     size_t pos;
