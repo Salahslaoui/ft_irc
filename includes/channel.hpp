@@ -7,7 +7,9 @@
 
 
 
-
+#define NICK_EMPTY 100
+#define NICK_NOT_VALID 101
+#define NICK_INUSE 102
 #define	USERALREADYJOINED 0
 #define USERISJOINED 1
 #define NOTINCHANNEL 2
@@ -61,6 +63,7 @@ struct client_info
     int PASS_flag;
     int Nickname_flag;
     int Username_flag;
+    std::string leftover;
     
     client_info() : fd(-1), has_register(0), PASS_flag(0), Nickname_flag(0), Username_flag(0) {}
 };
