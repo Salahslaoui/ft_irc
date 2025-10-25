@@ -85,7 +85,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                     if (client->nickname == channels[i].clients[j].nickname)
                         return (send_numeric(client, ERR_USERONCHANNEL, "JOIN", "User already exist in this channel"));
                 }
-                if (channels[i].i && !client_invited(channels[i], client))
+                if (channels[i].i)
                     return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel\r\n"));
                 else if (channels[i].l && max_clients(channels[i]))
                     return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "the limit is reached\r\n"));

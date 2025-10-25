@@ -423,6 +423,46 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
         send_numeric(client_connected, "421", tokens[0], "Unknown command");
 }
 
+void claining(std::deque<channel> &channels, client_info *client_connected)
+{
+	std::string quitMsg = ":" + client_connected->nickname + "!" + client_connected->username + 
+                      "@" + get_client_ipp(client_connected->fd) + " QUIT :Client disconnected\r\n";
+	for (size_t i = 0; i < channels.size(); ++i)
+	{
+		for (size_t j = 0; j < channels[i].clients.size();)
+		{
+			if (channels[i].clients[j].nickname == client_connected->nickname)
+			{
+				channels[i].clients.erase(channels[i].clients.begin() + j, channels[i].clients.begin() + j + 1);
+				channels[i].broadcast(quitMsg, *client_connected, 1);
+			}
+			else
+				j++;
+		}
+		for (size_t j = 0; j < channels[i].moderators.size();)
+		{
+			if (channels[i].moderators[j].nickname == client_connected->nickname)
+			{
+				if (channels[i].moderators.size() == 1 && channels[i].clients.size() >= 1)
+				{
+					std::string modeMsg = ":ircserver MODE " + channels[i].name + " +o " + channels[i].clients[0].nickname + "\r\n";
+					channels[i].moderators.erase(channels[i].moderators.begin() + j, channels[i].moderators.begin() + j + 1);
+					channels[i].moderators.push_back(channels[i].clients[0]);
+					channels[i].broadcast(modeMsg, *client_connected, 1);
+				}
+				else if (channels[i].moderators.size() == 1 && channels[i].clients.size() == 0)
+				{
+					channels.erase(channels.begin() + i, channels.begin() + i + 1);
+					++i;
+					break;
+				}
+				else
+					j++;
+			}
+		}
+	}
+}
+
 void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_info> &clients, std::deque<channel> &channels)
 {
     client_info *client_connected = find_the_client(client_fd, clients);
@@ -434,6 +474,7 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
         if (byte_recived <= 0)
         {
             std::cout << "client disconnected !" << std::endl;
+			claining(channels, client_connected);
             close (client_connected->fd);
             // remove from fds
             for (size_t i = 0; i < fds.size(); i++)
