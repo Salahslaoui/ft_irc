@@ -5,7 +5,9 @@
 //    INVITE
 #define RPL_INVITING "341"
 
-
+#define RPL_NAMREPLY "353"
+// #define RPL_NAMREPLY(sender,channel,users) (std::string(":353 ") + sender + " = " + channel + " :" + users + POSTFIX)
+#define RPL_ENDOFNAMES "366"
 
 #define NICK_EMPTY 100
 #define NICK_NOT_VALID 101
@@ -32,12 +34,17 @@
 #define ERR_INVITEONLYCHAN "473"
 #define ERR_BADCHANNELKEY "475"	
 #define ERR_CHANNELISFULL "471"
-#define RPL_NAMREPLY "353"
+// #define RPL_NAMREPLY "353"
 #define RPL_CHANNELMODEIS "324"
 #define ERR_CHANOPRIVSNEEDED "482"
 #define ERR_UNKNOWNMODE "472"
+#define ERR_BADCHANMASK "476"
 #define ERR_USERNOTINCHANNEL "441"
 #define ERR_NOTONCHANNEL "442"
+#define RPL_TOPIC "332"
+#define RPL_NOTOPIC "331"
+#define ERR_UNKNOWNCOMMAND "421"
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -81,7 +88,8 @@ class channel
         std::vector<client_info> moderators;
         std::vector<client_info> invited;
         int max_clients;
-        std::string topics;
+        std::string topic;
+		bool topic_flag;
         bool i;
         bool o;
         bool t;
@@ -99,5 +107,6 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 void send_numeric(client_info* client, const std::string& code, const std::string& target, const std::string& message);
 void privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
 void topic(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
+void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 
 #endif

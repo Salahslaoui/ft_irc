@@ -36,6 +36,10 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	std::string modes;
 	bool add = true;
 	int args_start = 3;
+
+	// Use a vector of pairs to preserve insertion order
+	std::vector<std::pair<char, std::string> > valid_modes;
+
 	// checks if it has valid args
 	if (tokens.size() < 3)
 		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n"));
@@ -49,7 +53,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	if (!find_client(client_connected->nickname, di_channel->clients))
 		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel\n"));
 	
-		// check if the client is an operator
+	// check if the client is an operator
 	if (!check_if_op(di_channel, client_connected->nickname))
 		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator\n"));
 	
@@ -63,17 +67,25 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 		if (modes[i] == '+')
 		{
 			add = true;
+			valid_modes.push_back(std::make_pair(modes[i], ""));
 			continue;
 		}
-		if (modes[i] == '-')
+		else if (modes[i] == '-')
 		{
 			add = false;
+			valid_modes.push_back(std::make_pair(modes[i], ""));
 			continue;
 		}
-		if (modes[i] ==  'i')
+		else if (modes[i] == 'i')
+		{
 			di_channel->i = add;
+			valid_modes.push_back(std::make_pair(modes[i], ""));
+		}
 		else if (modes[i] == 't')
+		{
 			di_channel->t = add;
+			valid_modes.push_back(std::make_pair(modes[i], ""));
+		}
 		else if (modes[i] == 'k')
 		{
 			if (add)
@@ -83,11 +95,13 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 					send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n");
 					continue;
 				}
+				valid_modes.push_back(std::make_pair(modes[i], tokens[args_start]));
 				di_channel->k = add;
 				di_channel->key = tokens[args_start++];
 			}
 			else
 			{
+				valid_modes.push_back(std::make_pair(modes[i], ""));
 				di_channel->k = add;
 				di_channel->key = "";
 			}
@@ -99,7 +113,8 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 				send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n");
 				continue;
 			}
-			modify_channel_op(di_channel, tokens[args_start++], add, client_connected);
+			modify_channel_op(di_channel, tokens[args_start], add, client_connected);
+			valid_modes.push_back(std::make_pair(modes[i], tokens[args_start++]));
 		}
 		else if (modes[i] == 'l')
 		{
@@ -111,11 +126,10 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 					continue;
 				}
 
-				std::string limit_str = tokens[args_start++];
+				std::string limit_str = tokens[args_start];
 				long long_limit = 0;
 				bool valid = true;
 
-				// Check that all characters are digits
 				for (size_t j = 0; j < limit_str.size(); j++)
 				{
 					if (!isdigit(limit_str[j]))
@@ -144,13 +158,13 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 					continue;
 				}
 
-				// safe to assignn y
+				valid_modes.push_back(std::make_pair(modes[i], tokens[args_start++]));
 				di_channel->l = true;
 				di_channel->max_clients = static_cast<int>(long_limit);
 			}
 			else
 			{
-				// Removing the limit
+				valid_modes.push_back(std::make_pair(modes[i], ""));
 				di_channel->l = false;
 				di_channel->max_clients = 0;
 			}
@@ -158,11 +172,22 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 		else
 			send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1, modes[i]), " is unknown mode char to me\n");
 	}
+
 	// ✅ Broadcast the mode change to everyone in the channel
 	std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
-	                            "@localhost MODE " + di_channel->name + " " + tokens[2];
-	for (size_t i = 3; i < tokens.size(); i++)
-		broadcast_msg += " " + tokens[i];
+	                            "@IRC MODE " + di_channel->name + " ";
 
-	// di_channel->broadcast(broadcast_msg, *client_connected, false);
+	// First loop → append all the mode characters in order
+	for (size_t i = 0; i < valid_modes.size(); ++i)
+		broadcast_msg += valid_modes[i].first;
+
+	// Second loop → append all the arguments
+	for (size_t i = 0; i < valid_modes.size(); ++i)
+	{
+		if (!valid_modes[i].second.empty())
+			broadcast_msg += " " + valid_modes[i].second;
+	}
+
+	std::cout << broadcast_msg << std::endl;
+	di_channel->broadcast(broadcast_msg, *client_connected, false);
 }

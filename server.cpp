@@ -159,7 +159,7 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
                 if (value != server_password)
                 {
                         client->PASS_flag = 0;
-                        send_numeric(client, "464", command, "Password incorrect");
+                        send_numeric(client, "464", "*", "Password incorrect");
                         throw std::runtime_error("error :Password incorrectT");
 
                 }
@@ -389,9 +389,8 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
                 continue;
         }
 	}
-	for (int i = 0; i < tokens.size(); i++)
-		std::cout << tokens[i] << std::endl; 
-    if (tokens[0] == "JOIN")
+
+	if (tokens[0] == "JOIN")
         join(tokens, channels, client_connected);
     else if (tokens[0] == "MODE")
         mode(tokens, channels, client_connected);
@@ -401,6 +400,8 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
         topic(tokens, channels, client_connected);
     else if (tokens[0] == "INVITE")
         invite(channels, client_connected, clients, tokens);
+    else if (tokens[0] == "KICK")
+        kick(tokens, channels, client_connected);
 	else if (tokens[0] == "PING")
 	{
 		if (tokens.size() > 1)
