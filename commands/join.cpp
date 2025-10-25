@@ -38,7 +38,7 @@ std::string build_names_list(const channel& chan)
         {
             if (chan.moderators[j].nickname == c.nickname)
             {
-                prefix = "@"; // operator
+                prefix = "@";
                 break;
             }
         }
@@ -50,13 +50,8 @@ std::string build_names_list(const channel& chan)
     return list;
 }
 
-void    create_channel(std::deque<channel> &channels, std::map<std::string, std::string>::iterator it, client_info *client, std::string &tmp)
+void    create_channel(std::deque<channel> &channels, std::map<std::string, std::string>::iterator it, client_info *client)
 {
-    if (tmp != "")
-    {
-        it->second = tmp;
-        tmp = "";
-    }
     if (channels.size() == 0)
     {
         channel add;
@@ -85,11 +80,10 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
         {
             if ((channels[i].l == 1 && channels[i].clients.size() + 1 <= channels[i].max_clients) || channels[i].l == 0)
             {
-                tmp = it->second;
                 for (int j = 0; j < channels[i].clients.size(); ++j)
                 {     
                     if (client->nickname == channels[i].clients[j].nickname)
-                        return (std::cerr << "This User already exist in this channel" << std::endl, void());
+                        return (send_numeric(client, ERR_USERONCHANNEL, "JOIN", "User already exist in this channel"));
                 }
                 if (channels[i].i && !client_invited(channels[i], client))
                     return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel\r\n"));
@@ -134,7 +128,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
     std::string server_name = "irc.localhost";
 	std::string list = build_names_list(add);
 
-    // JOIN message
+
     std::string join_msg = ":" + client->nickname + "!" + client->username +
                         "@" + add.get_client_ip(client->fd) +
                         " JOIN :" + add.name + "\r\n";
@@ -153,7 +147,6 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     std::string ky;
     std::string tmp;
     std::string tmp1;
-    std::string tmp2 = "";
     int         err_flag = 0;
     int         alr = 0;
     std::map<std::string, std::string> _channel;
@@ -170,15 +163,10 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     {
         if (tmp[0] != '#' && tmp[0] != '&')
         {
-            send_numeric(client_connected, ERR_NOSUCHCHANNEL, "JOIN", "No such channel\r\n");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "No such channel\r\n");
             continue;
         }
         if (tmp.find(7) != std::string::npos || tmp.size() > 20)
-        {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
-            continue;
-        }
-        if (tmp.size() == 1)
         {
             send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
             continue;
@@ -192,7 +180,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     }
     channel add;
     for (std::map<std::string, std::string>::iterator it = _channel.begin(); it != _channel.end(); ++it)
-        create_channel(channels, it, client_connected, tmp2);
+        create_channel(channels, it, client_connected);
     std::cout << "\n\n    ||||||||     \n" <<std::endl;
     for (int i = 0; i < channels.size(); ++i)
     {

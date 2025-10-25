@@ -9,7 +9,9 @@
 // #define RPL_NAMREPLY(sender,channel,users) (std::string(":353 ") + sender + " = " + channel + " :" + users + POSTFIX)
 #define RPL_ENDOFNAMES "366"
 
-
+#define NICK_EMPTY 100
+#define NICK_NOT_VALID 101
+#define NICK_INUSE 102
 #define	USERALREADYJOINED 0
 #define USERISJOINED 1
 #define NOTINCHANNEL 2
@@ -41,6 +43,7 @@
 #define ERR_NOTONCHANNEL "442"
 #define RPL_TOPIC "332"
 #define RPL_NOTOPIC "331"
+#define ERR_UNKNOWNCOMMAND "421"
 
 #include <iostream>
 #include <vector>
@@ -67,6 +70,7 @@ struct client_info
     int PASS_flag;
     int Nickname_flag;
     int Username_flag;
+    std::string leftover;
     
     client_info() : fd(-1), has_register(0), PASS_flag(0), Nickname_flag(0), Username_flag(0) {}
 };
