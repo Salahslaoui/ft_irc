@@ -178,9 +178,9 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 			send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1, modes[i]), " is unknown mode char to me\n");
 	}
 
-	// ✅ Broadcast the mode change to everyone in the channel
+	//  Broadcast the mode change to everyone in the channel
 	std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
-	                            "@IRC MODE " + di_channel->name + " ";
+	                            "@" + di_channel->get_client_ip(client_connected->fd) + " MODE " + di_channel->name + " ";
 
 	// First loop → append all the mode characters in order
 	for (size_t i = 0; i < valid_modes.size(); ++i)
