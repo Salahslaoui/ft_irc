@@ -6,39 +6,24 @@ std::string server_password;
 
 std::string numeric_reply_user(const std::string& code)
 {
-    return ":localhost " + code + " :" + "You may not register" + "\r\n";
+    return ":ircserv " + code + " :" + "You may not register" + "\r\n";
 }
 
-// helper function to send a numeric reply to a client
 void send_numeric_user(client_info* client, const std::string& code)
 {
     std::string error = numeric_reply_user(code);
     send(client->fd, error.c_str(), error.size(), 0);
 }
 
-
-// std::string numeric_reply_nick_2(const std::string& code, std::string command, const std::string& message)
-// {
-//     return ":localhost " + code + " " + command + " :" + message + "\r\n";
-// }
-
-// // helper function to send a numeric reply to a client
-// void send_numeric_nick_2(client_info* client, const std::string& code, std::string command, const std::string& message)
-// {
-//     std::string error = numeric_reply_nick(code, command, message);
-//     send(client->fd, error.c_str(), error.size(), 0);
-// }
-
-
 void    send_numeric_nick(client_info* client, const std::string& code, std::string command, int flag)
 {
     std::string error;
     if (flag == NICK_EMPTY)
-        error = ":localhost" + code + " :No nickname given" +  "\r\n";
+        error = ":ircserv" + code + " :No nickname given" +  "\r\n";
     else if (flag == NICK_NOT_VALID)
-        error = ":localhost" + code + " " + command + " :Erroneus nickname" +  "\r\n";
+        error = ":ircserv" + code + " " + command + " :Erroneus nickname" +  "\r\n";
     else if (flag == NICK_INUSE)
-        error = ":localhost" + code + " " + command + " :Nickname is already in use" +  "\r\n";
+        error = ":ircserv" + code + " " + command + " :Nickname is already in use" +  "\r\n";
     send(client->fd, error.c_str(), error.size(), 0);
 }
 
@@ -77,8 +62,6 @@ client_info *find_the_client(int client_fd, std::vector<client_info> &clients)
 
 bool is_valid_nickname(const std::string &nick)
 {
-
-    // Check first character
     char first = nick[0];
     if (!isalpha(first) &&
         first != '[' && first != ']' &&
@@ -87,7 +70,6 @@ bool is_valid_nickname(const std::string &nick)
         first != '}')
         return false;
 
-    // Check remaining characters
     for (size_t i = 1; i < nick.size(); ++i)
     {
         char c = nick[i];
@@ -106,17 +88,12 @@ void parce_nickname(std::string value, client_info *client)
 {
     if (value.find(' ') != std::string::npos)
     {
-        // std::string error = "Nickname must be a single word\n";
-        // send(client->fd, error.c_str(), error.size(), 0);
-        // send_numeric(client, "432", "*", NICK_NOT_VALID);
         send_numeric(client, "432", "*", "Erroneus nickname");
         throw std::runtime_error("error :Nickname must be a single word");
     }
 
     if (!is_valid_nickname(value))
-    {
-        // std::string error = "Invalid nickname format\n";
-        // send(client->fd, error.c_str(), error.size(), 0);
+    {;
         send_numeric(client, "432", "*", "Erroneus nickname");
         throw std::runtime_error("error :Erroneus nickname");
     }
@@ -134,13 +111,6 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
         value = trim(value);
         if ((!client->PASS_flag || command == "PASS") && (!client->Nickname_flag && !client->Username_flag))
         {
-                // std::istringstream iss(request);
-                // std::string command;
-                // std::string value;
-                // iss >> command;
-                // std::getline(iss, value);
-                // value = trim(value);
-                // std::cout << "value : " << value << std::endl;
                 if (command != "PASS" && command != "NICK" && command != "USER")
                 {
                         send_numeric(client, "421", command, "Unknown command");
@@ -176,8 +146,6 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
             {
                 if (value.empty())
                 {
-                    // std::string error = "Error: nickname cannot be empty!\n";
-                    // send(client->fd, error.c_str(), error.size(), 0);
                     send_numeric_nick(client, "431", "", NICK_EMPTY);
                     throw std::runtime_error("error :No nickname given");
                 }
@@ -186,8 +154,6 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
                 {
                     if (clients[i].nickname == value)
                     {
-                        // std::string error = "Error: nickname already in use!\n";
-                        // send(client->fd, error.c_str(), error.size(), 0);
                         send_numeric(client, "433", "*", "Nickname is already in use");
                         throw std::runtime_error("error :nickname is already in use!");
                     }
@@ -204,23 +170,18 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
             {
                 std::string error = "Error: USER command requires parameters\r\n";
                 send(client->fd, error.c_str(), error.size(), 0);
-            // send_numeric(client, 461, )
                 throw std::runtime_error("error :USER command missing parameters");
             }
 
             std::istringstream iss(value);
             std::string username, mode, unused, realname;
 
-    // Parse first three fields
             if (!(iss >> username >> mode >> unused))
             {
                 send_numeric(client, "461", value, "Not enough parameters");
-                // std::string error = "Error: USER command requires at least 4 parameters\r\n";
-                // send(client->fd, error.c_str(), error.size(), 0);
                 throw std::runtime_error("error :Not enough parameters");
             }
 
-    // Validate mode and unused
             if (mode != "0")
             {
                 std::string error = "Error: USER mode must be 0\r\n";
@@ -235,28 +196,17 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
                 throw std::runtime_error("error :Invalid USER unused parameter");
             }
 
-    // Parse realname (rest of line)
             std::getline(iss, realname);
             while (!realname.empty() && (realname[0] == ' ' || realname[0] == '\t'))
                 realname.erase(0, 1);
             if (!realname.empty() && realname[0] == ':')
                 realname.erase(0, 1);
 
-    // Store only username
             client->username = username;
             client->Username_flag = 1;
-
-    // std::cout << "Parsed USER => username: " << username
-    //           << " | mode: " << mode
-    //           << " | unused: " << unused
-    //           << " | realname: " << realname << std::endl;
         }
-
-
             else
             {
-                // std::string error = "Error: command invalid!\n";
-                // send(client->fd, error.c_str(), error.size(), 0);
                 send_numeric(client, "451", "*", "You have not registered");
                 throw std::runtime_error("error :You have not registered");
             }
@@ -265,7 +215,7 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
 			{
 				client->has_register = 1;
 				std::string nick = client->nickname;
-				std::string server_name = "irc.localhost";
+				std::string server_name = "ircserv";
 
 				std::string welcome =
 					":" + server_name + " 001 " + nick + " :Welcome to the IRC network, " + nick + "!\r\n" +
@@ -279,9 +229,6 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
 				send(client->fd, welcome.c_str(), welcome.size(), 0);
 				std::cout << "Client registered: " << client->nickname << " (" << client->username << ")" << std::endl;
 			}
-
-
-            // handle the two others command]
         }
     }
     catch(const std::exception& e)
@@ -321,18 +268,6 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
     client->leftover += buffer; // append new data to any partial previous data
 
     size_t pos;
-    //     // Find either CRLF or LF
-    //     size_t pos_crlf = client->leftover.find("\r\n");
-
-    //     // Choose the first valid delimiter found
-    //     if (pos_crlf != std::string::npos)
-    //         pos = pos_crlf;
-    //     else
-    //     {
-    //         puts("hi");
-    //         return; // no complete line yet → wait for next recv()
-
-    //     }
     size_t pos_crlf = client->leftover.find("\r\n");
     size_t pos_lf   = client->leftover.find("\n");
 
@@ -367,8 +302,6 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
 
 void Commands(char *buffer, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients)
 {
-
-    //     
     std::string str(buffer);
     std::vector<std::string> tokens;
     std::stringstream ss(str);
@@ -416,8 +349,7 @@ void Commands(char *buffer, std::deque<channel> &channels, client_info *client_c
     }
     else if (tokens[0] == "PONG")
     {
-    // std::cout << "Received PONG from client " << client_connected->nickname << std::endl;
-    return; // no further processing
+    	return; // no further processing
     }
     else
         send_numeric(client_connected, "421", tokens[0], "Unknown command");
@@ -502,7 +434,7 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
         size_t pos_crlf, pos_lf, pos;
 
 
-// Process all complete lines
+		// Process all complete lines
         while (true)
         {
             pos_crlf = client_connected->leftover.find("\r\n");
@@ -520,7 +452,7 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
             std::string request = client_connected->leftover.substr(0, pos);
 
 
-// Remove processed line from leftover
+			// Remove processed line from leftover
             if (pos == pos_crlf)
                 client_connected->leftover.erase(0, pos + 2);
             else
@@ -537,8 +469,7 @@ void    handle_req(int client_fd ,std::vector<pollfd> &fds, std::vector<client_i
                 continue;
             }
 
-
-// Copy to clean buffer for Commands
+			// Copy to clean buffer for Commands
             char clean_buffer[1024];
             std::strncpy(clean_buffer, request.c_str(), sizeof(clean_buffer) - 1);
             clean_buffer[sizeof(clean_buffer) - 1] = '\0';
@@ -610,7 +541,6 @@ int main(int ac, char *av[])
     if (!parse_the_input(&av[1]))
         exit(1);
     server_password = av[2];
-    // std::cout << server_password << std::endl;
 
     std::vector<pollfd> fds;
     std::vector<client_info> clients;
@@ -619,15 +549,10 @@ int main(int ac, char *av[])
 
     int server_fd = -1;
     bool server_running = true;
-    // char buffer[1024] = {0};
     struct sockaddr_in server_addr;
-
     try
     {
-
         server_fd = socket(AF_INET, SOCK_STREAM, 0);
-
-        
         if (server_fd == -1)
             throw std::runtime_error("Socket failed!");
         
