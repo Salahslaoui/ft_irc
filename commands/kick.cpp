@@ -6,8 +6,6 @@ void kick_client(channel &kick_channel, std::string client_to_kick, client_info 
 {
 	client_info *client = find_client(client_to_kick, kick_channel.clients);
 
-
-
 	for (std::vector<client_info>::iterator it = kick_channel.clients.begin();
 			it != kick_channel.clients.end(); ++it)
 		{
@@ -26,7 +24,7 @@ void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	std::string modes;
 	bool add = true;
 	int args_start = 3;
-
+	int index;
 	
 	// checks if it has valid args
 	if (tokens.size() < 3 || (tokens.size() == 3 && tokens[2][0] == ':' && tokens[2].size() == 1))
@@ -56,8 +54,14 @@ void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client
 
 	std::string msg = ":" + client_connected->nickname + "!" + client_connected->username +
                   "@localhost KICK " + channel_name + " " + tokens[2] + " ";
-	for (int i = 3; i < tokens.size(); i++)
+	for (int i = 3; i < tokens.size() - 1; i++)
+	{
 		msg += tokens[i] + " ";
+		index = i;
+	}
+	if (index + 1 < tokens.size())
+		msg += tokens[++index];
+
 	di_channel->broadcast(msg, *client_connected, false);
 	kick_client(*di_channel, tokens[2], *client_connected);
 }

@@ -7,6 +7,9 @@ bool modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 
 	if (!client)
 		return (send_numeric(client_connected, ERR_USERNOTINCHANNEL, Client_to_add + " " +di_channel->name, "They aren't on that channel\n"), false);
+	if (!to_add && client->nickname == client_connected->nickname)
+		return (send_numeric(client_connected, ERR_UNKNOWNCOMMAND, Client_to_add + " " +di_channel->name, "Cannot remove privileges from yourself\n"), false);
+	
 	if (to_add)
 	{
 		if (!check_if_op(di_channel, Client_to_add))
@@ -182,7 +185,8 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	// First loop → append all the mode characters in order
 	for (size_t i = 0; i < valid_modes.size(); ++i)
 	{
-		if ((valid_modes[i].first == '+' || valid_modes[i].first == '-') && (i + 1 < valid_modes.size() || valid_modes[i + 1].first == '+' || valid_modes[i + 1].first == '-'))
+		if ((valid_modes[i].first == '+' || valid_modes[i].first == '-') && (i + 1 >= valid_modes.size()
+			|| valid_modes[i + 1].first == '+' || valid_modes[i + 1].first == '-'))
 			continue;
 		broadcast_msg += valid_modes[i].first;
 	}
