@@ -34,3 +34,7 @@ USER 10 * :ff
 ENTRY THE PASSWORD FIRST!
 
 ---------------------------
+
+
+mode #chan -o aaa if one channel operator
+TOPIC #chan aaaa (add space)

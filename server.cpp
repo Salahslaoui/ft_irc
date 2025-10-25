@@ -561,8 +561,15 @@ int   parse_the_input(char *av[])
     return(1);
 }
 
+void f()
+{
+	system ("leaks exec 6667 alae");
+}
+
 int main(int ac, char *av[])
 {
+	atexit(f);
+
     if (ac != 3)
     {
         std::cout << "entre the right argumments!" << std::endl;

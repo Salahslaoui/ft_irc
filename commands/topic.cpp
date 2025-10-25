@@ -52,7 +52,7 @@ void topic(std::vector<std::string> tokens, std::deque<channel> &channels, clien
 	{
 		set_topic(*di_channel, tokens);
 		std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
-	                            "@IRC TOPIC " + di_channel->name + " :" + di_channel->topic;
+	                            "@" + di_channel->get_client_ip(client_connected->fd) + " TOPIC " + di_channel->name + " :" + di_channel->topic;
 		di_channel->broadcast(broadcast_msg, *client_connected, false);
 	}
 }
