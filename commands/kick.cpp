@@ -6,11 +6,7 @@ void kick_client(channel &kick_channel, std::string client_to_kick, client_info 
 {
 	client_info *client = find_client(client_to_kick, kick_channel.clients);
 
-	if (client_connected.nickname == client_to_kick)
-	{
-		send_numeric(&client_connected, ERR_UNKNOWNCOMMAND, "KICK", "You cannot kick yourself\n");
-		return;
-	}
+
 
 	for (std::vector<client_info>::iterator it = kick_channel.clients.begin();
 			it != kick_channel.clients.end(); ++it)
@@ -52,11 +48,16 @@ void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	if (!check_if_op(di_channel, client_connected->nickname))
 		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator\n"));
 
+	if (client_connected->nickname == tokens[2])
+	{
+		send_numeric(client_connected, ERR_UNKNOWNCOMMAND, "KICK", "You cannot kick yourself\n");
+		return;
+	}
 
-	kick_client(*di_channel, tokens[2], *client_connected);
 	std::string msg = ":" + client_connected->nickname + "!" + client_connected->username +
                   "@localhost KICK " + channel_name + " " + tokens[2] + " ";
 	for (int i = 3; i < tokens.size(); i++)
 		msg += tokens[i] + " ";
 	di_channel->broadcast(msg, *client_connected, false);
+	kick_client(*di_channel, tokens[2], *client_connected);
 }

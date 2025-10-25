@@ -1,12 +1,12 @@
 #include "../includes/channel.hpp"
 #include "../includes/helper.hpp"
 
-void modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_add, client_info *client_connected)
+bool modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_add, client_info *client_connected)
 {
 	client_info *client = find_client(Client_to_add, di_channel->clients);
 
 	if (!client)
-		return (send_numeric(client_connected, ERR_USERNOTINCHANNEL, Client_to_add + di_channel->name, "They aren't on that channel\n"));
+		return (send_numeric(client_connected, ERR_USERNOTINCHANNEL, Client_to_add + " " +di_channel->name, "They aren't on that channel\n"), false);
 	if (to_add)
 	{
 		if (!check_if_op(di_channel, Client_to_add))
@@ -15,7 +15,7 @@ void modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 	else
 	{
 		if (di_channel->moderators.size() == 1)
-    		return send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, di_channel->name, "Cannot remove the only channel operator\n");
+    		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, di_channel->name, "Cannot remove the only channel operator\n"), false);
 		for (std::vector<client_info>::iterator it = di_channel->moderators.begin();
 			it != di_channel->moderators.end(); ++it)
 		{
@@ -26,6 +26,7 @@ void modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 			}
 		}
 	}
+	return true;
 }
 
 // MODE <channel> {[+|-]|i|t|k|o|l} [<parameter>]
@@ -113,8 +114,9 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 				send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n");
 				continue;
 			}
-			modify_channel_op(di_channel, tokens[args_start], add, client_connected);
-			valid_modes.push_back(std::make_pair(modes[i], tokens[args_start++]));
+			bool flag = modify_channel_op(di_channel, tokens[args_start], add, client_connected);
+			if (flag)
+				valid_modes.push_back(std::make_pair(modes[i], tokens[args_start++]));
 		}
 		else if (modes[i] == 'l')
 		{
@@ -179,7 +181,11 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 
 	// First loop → append all the mode characters in order
 	for (size_t i = 0; i < valid_modes.size(); ++i)
+	{
+		if ((valid_modes[i].first == '+' || valid_modes[i].first == '-') && (i + 1 < valid_modes.size() || valid_modes[i + 1].first == '+' || valid_modes[i + 1].first == '-'))
+			continue;
 		broadcast_msg += valid_modes[i].first;
+	}
 
 	// Second loop → append all the arguments
 	for (size_t i = 0; i < valid_modes.size(); ++i)
