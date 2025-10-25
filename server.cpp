@@ -109,7 +109,8 @@ void parce_nickname(std::string value, client_info *client)
     {
         // std::string error = "Nickname must be a single word\n";
         // send(client->fd, error.c_str(), error.size(), 0);
-        send_numeric_nick(client, "432", value, NICK_NOT_VALID);
+        // send_numeric(client, "432", "*", NICK_NOT_VALID);
+        send_numeric(client, "432", "*", "Erroneus nickname");
         throw std::runtime_error("error :Nickname must be a single word");
     }
 
@@ -117,7 +118,7 @@ void parce_nickname(std::string value, client_info *client)
     {
         // std::string error = "Invalid nickname format\n";
         // send(client->fd, error.c_str(), error.size(), 0);
-        send_numeric_nick(client, "432", value, NICK_NOT_VALID);
+        send_numeric(client, "432", "*", "Erroneus nickname");
         throw std::runtime_error("error :Erroneus nickname");
     }
 }
@@ -132,8 +133,6 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
         iss >> command;
         std::getline(iss, value);
         value = trim(value);
-        std::cout << "client->flag: " << client->PASS_flag << std::endl;
-        std::cout << "Command: " << command << std::endl;
         if ((!client->PASS_flag || command == "PASS") && (!client->Nickname_flag && !client->Username_flag))
         {
                 // std::istringstream iss(request);
@@ -160,7 +159,7 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
                 {
                         client->PASS_flag = 0;
                         send_numeric(client, "464", "*", "Password incorrect");
-                        throw std::runtime_error("error :Password incorrectT");
+                        throw std::runtime_error("error :Password incorrect");
 
                 }
                 client->PASS_flag = 1;
@@ -190,7 +189,7 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
                     {
                         // std::string error = "Error: nickname already in use!\n";
                         // send(client->fd, error.c_str(), error.size(), 0);
-                        send_numeric_nick(client, "433", value, NICK_INUSE);
+                        send_numeric(client, "433", "*", "Nickname is already in use");
                         throw std::runtime_error("error :nickname is already in use!");
                     }
                 }
@@ -259,8 +258,8 @@ void    detecte_the_command(std::string request, client_info *client, std::vecto
             {
                 // std::string error = "Error: command invalid!\n";
                 // send(client->fd, error.c_str(), error.size(), 0);
-                send_numeric(client, "421", command, "Unknown command");
-                throw std::runtime_error("error :Unknown command");
+                send_numeric(client, "451", "*", "You have not registered");
+                throw std::runtime_error("error :You have not registered");
             }
 
             if (client->PASS_flag && client->Nickname_flag && client->Username_flag)
@@ -363,7 +362,6 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
         // Handle the parsed command
         if (buffer[0] == '\n')
             return;
-        puts("hi");
         detecte_the_command(request, client, clients);
 }
 
@@ -524,7 +522,7 @@ int   parse_the_input(char *av[])
         i++;
     }
     int port = std::atoi(av[0]);
-    if (port <= 0 || port > 65535)
+    if (port < 1024 || port > 65535)
     {
         std::cerr << "Invalid port!" << std::endl;
         return 0;
