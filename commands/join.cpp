@@ -106,11 +106,6 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
 					send_it(client, msg);
 					msg = ":" + server_name + " " + RPL_ENDOFNAMES + " " + client->nickname + " = " + channels[i].name + " " + ":End of NAMES list" + POSTFIX;
 					send_it(client, msg);
-                    std::cout << "Clients in the channel: " << channels[i].clients.size() << std::endl;
-                    std::cout << channels[i].clients[1].nickname << " a33" << std::endl;
-                    std::cout << std::endl;
-                    // channels[i].broadcast(std::string(":" + client->nickname + "!~" + client->username + "@" 
-                    //     + channels[i].get_client_ip(client->fd) + " JOIN " + channels[i].name).c_str(), *client, false);
                     return (std::cout << "the client " << client->nickname << " has joined " << channels[i].name << std::endl, void());
                 }
             }

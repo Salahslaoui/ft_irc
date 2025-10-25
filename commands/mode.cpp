@@ -17,7 +17,7 @@ bool modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 	}
 	else
 	{
-		if (di_channel->moderators.size() == 1)
+		if (di_channel->moderators.size() == 1 && check_if_op(di_channel, Client_to_add))
     		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, di_channel->name, "Cannot remove the only channel operator\n"), false);
 		for (std::vector<client_info>::iterator it = di_channel->moderators.begin();
 			it != di_channel->moderators.end(); ++it)
@@ -39,7 +39,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	channel* di_channel;
 	std::string modes;
 	bool add = true;
-	int args_start = 3;
+	size_t args_start = 3;
 
 	// Use a vector of pairs to preserve insertion order
 	std::vector<std::pair<char, std::string> > valid_modes;
@@ -66,7 +66,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	if (tokens[2].empty() || (tokens[2][0] != '+' && tokens[2][0] != '-')) 
 		return (send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1,tokens[2][0]), "is unknown mode char to me\n"));
 
-	for (int i = 0; i < modes.size(); i++)
+	for (size_t i = 0; i < modes.size(); i++)
 	{
 		if (modes[i] == '+')
 		{
