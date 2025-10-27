@@ -59,6 +59,7 @@
 #include <sstream>
 #include <algorithm>
 #include <limits.h>
+#include <fcntl.h>
 
 struct client_info
 {

@@ -50,7 +50,6 @@ void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client
 	{
 		send_numeric(client_connected, ERR_UNKNOWNCOMMAND, "KICK", "You cannot kick yourself\n");
 		return;
-	
 	}
 	std::string msg = ":" + client_connected->nickname + "!" + client_connected->username +
                   "@" + di_channel->get_client_ip(client_connected->fd) + " KICK " + channel_name + " " + tokens[2] + " ";
