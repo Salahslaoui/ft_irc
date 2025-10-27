@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 NAME = exec
 SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privmsg.cpp commands/invite.cpp helpers/helpers.cpp commands/topic.cpp commands/kick.cpp main.cpp
+=======
+NAME = ircserv
+SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privmsg.cpp commands/invite.cpp helpers/helpers.cpp commands/topic.cpp commands/kick.cpp
+>>>>>>> 7e2275c1a0cc6056acbcaf69ee141685d048d5dc
 OBJ = $(SRC:%.cpp=%.o)
 INCLUDE = includes/channel.hpp includes/helper.hpp
 
-CC = c++ -g
+CC = c++
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)
 
@@ -12,7 +18,7 @@ $(NAME): $(OBJ)
 	@echo "Executable linked successfully!"
 
 %.o: %.cpp $(INCLUDE)
-	@$(CC) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled $<"
 
 clean:

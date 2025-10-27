@@ -20,4 +20,7 @@ void invite(std::deque<channel> &channels, client_info *client_connected, std::v
     tmp1 = find_client(tokens[1], clients);
     tmp->invited.push_back(*tmp1);
     send_numeric(client_connected, RPL_INVITING, "INVITE", "Sent to confirm the invitation to the inviter\r\n");
+	std::string msg = ":" + client_connected->nickname + "!" + client_connected->username + "@" + get_client_ipp(client_connected->fd) +
+                    " INVITE " + find_client(tokens[1], clients)->nickname + " :" + find_channel(tokens[2], channels)->name + "\r\n";
+	send(find_client(tokens[1], clients)->fd, msg.c_str(), msg.size(), 0);
 }

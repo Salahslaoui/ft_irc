@@ -2,7 +2,7 @@
 #include "../includes/helper.hpp"
 
 
-void kick_client(channel &kick_channel, std::string client_to_kick, client_info &client_connected)
+void kick_client(channel &kick_channel, std::string client_to_kick)
 {
 	client_info *client = find_client(client_to_kick, kick_channel.clients);
 
@@ -21,11 +21,7 @@ void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client
 {
 	std::string channel_name;
 	channel* di_channel;
-	std::string modes;
-	bool add = true;
-	int args_start = 3;
-	int index;
-	
+	std::string msg;
 	// checks if it has valid args
 	if (tokens.size() < 3 || (tokens.size() == 3 && tokens[2][0] == ':' && tokens[2].size() == 1))
 		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "KICK", "Not enough parameters\n"));
@@ -51,16 +47,13 @@ void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client
 		send_numeric(client_connected, ERR_UNKNOWNCOMMAND, "KICK", "You cannot kick yourself\n");
 		return;
 	}
-	std::string msg = ":" + client_connected->nickname + "!" + client_connected->username +
-                  "@" + di_channel->get_client_ip(client_connected->fd) + " KICK " + channel_name + " " + tokens[2] + " ";
-	for (int i = 3; i < tokens.size() - 1; i++)
+	msg = ":" + client_connected->nickname + "!" + client_connected->username +
+                  "@" + di_channel->get_client_ip(client_connected->fd) + " KICK " + channel_name + " " + tokens[2];
+	for (size_t i = 3; i < tokens.size(); i++)
 	{
-		msg += tokens[i] + " ";
-		index = i;
+		msg += " " + tokens[i];
 	}
-	if (index + 1 < tokens.size())
-		msg += tokens[++index];
 
 	di_channel->broadcast(msg, *client_connected, false);
-	kick_client(*di_channel, tokens[2], *client_connected);
+	kick_client(*di_channel, tokens[2]);
 }

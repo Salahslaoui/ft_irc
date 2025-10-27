@@ -88,11 +88,10 @@ class channel
         std::vector<client_info> clients;
         std::vector<client_info> moderators;
         std::vector<client_info> invited;
-        int max_clients;
+        size_t max_clients;
         std::string topic;
 		bool topic_flag;
         bool i;
-        bool o;
         bool t;
         bool k;
         bool l;
@@ -109,5 +108,6 @@ void send_numeric(client_info* client, const std::string& code, const std::strin
 void privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
 void topic(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
+std::string get_client_ipp(int client_fd);
 
 #endif
