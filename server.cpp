@@ -74,7 +74,7 @@ void server_info::set_password(std::string pass)
 
 void	server_info::accept_client()
 {
-
+	Client inst;
 	std::cout << "client acccepted 7ashak!" << std::endl;
 	sockaddr_in tmp;
 	bzero(&tmp, sizeof(sockaddr_in));
@@ -98,7 +98,10 @@ void	server_info::accept_client()
 	tmp2.events = POLLIN;
 	tmp2.revents = 0;
 
-	pollFds.push_back(tmp2);	
+	pollFds.push_back(tmp2);
+
+	inst.set_fd(client_fd);
+	clients.push_back(inst);
 }
 
 std::vector<std::string> split_buffer(std::string buffer)
@@ -166,7 +169,6 @@ void	server_info::handle_request(int client_fd)
 		for (size_t i = 0; i < commands.size(); ++i)
 			handle_auth(commands[i], C, clients, server_password);
 	}
-	??
 }
 
 void server_info::init()
