@@ -101,7 +101,7 @@ void	server_info::handle_request(int client_fd)
 	if (std::string(buffer)[0] == 'a') {
 		std::cout << "slawi" << std::endl;
 	}
-
+	??
 }
 
 void server_info::init()
@@ -140,6 +140,7 @@ void server_info::init()
 
 	struct pollfd s_poll;
     s_poll.fd = socket_fd;
+
     s_poll.events = POLLIN | POLLOUT | POLLERR;
     s_poll.revents = 0;
     pollFds.push_back(s_poll);
@@ -157,7 +158,7 @@ void server_info::run()
 			throw std::runtime_error("poll faiiiiiiiiiiiled!");
 		for (struct pollfd& e : pollFds)
 		{
-			bool mask = e.revents & POLLIN;
+			bool mask = e.revents & POLLIN ;
 			if (mask) {
 				if (e.fd == socket_fd)
 				{
@@ -178,4 +179,4 @@ void server_info::run()
 			}
 		}
 	}
-}
+}	
