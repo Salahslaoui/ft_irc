@@ -18,9 +18,23 @@ bool server_info::is_running()
 	return server_running;
 }
 
+std::vector<Client> server_info::get_clients()
+{
+	return (clients);
+}
+
 std::string server_info::name()
 {
 	return server_name;
+}
+
+Client server_info::get_client(int fd)
+{
+	for (size_t i = 0; i < clients.size(); ++i)
+	{
+		if (clients[i].get_fd() == fd)
+			return (clients[i]);
+	}
 }
 
 std::string server_info::password()
@@ -36,6 +50,11 @@ void server_info::set_fd(int fd)
 void server_info::set_port(int s_port)
 {
 	port = s_port;
+}
+
+void server_info::set_clients(std::vector<Client> set)
+{
+	clients = set;
 }
 
 void server_info::set_server_run(bool flag)
@@ -82,24 +101,70 @@ void	server_info::accept_client()
 	pollFds.push_back(tmp2);	
 }
 
+std::vector<std::string> split_buffer(std::string buffer)
+{
+	std::vector<std::string> cmds;
+	std::stringstream splitter(buffer);
+	std::string line;
+	while (std::getline(splitter, line, '\n'))
+	{
+		line += '\n';
+		cmds.push_back(line);
+	}
+	return (cmds);
+}
+
 void	server_info::handle_request(int client_fd)
 {
+	std::string str;
 	std::cout << "request received!" << std::endl;
 	char buffer[1024];
 
 	bzero(&buffer, 1024);
 
 	int received = recv(client_fd, buffer, 1024, 0);
-	if (received == -1) {
+	if (received == -1) 
+	{
 		// remove_client()
 		std::cerr << "recv failed!!" << std::endl;
 		return ;
-	} else {
-		buffer[received] = 0;
 	}
+	else if (received == 0)
+	{
+		std::cout << "client disconnected" << std::endl;
+		// remove_client()
+		return ;
+	} 
+	buffer[received] = 0;
+	str = buffer;
 	std::cout << buffer;
-	if (std::string(buffer)[0] == 'a') {
-		std::cout << "slawi" << std::endl;
+	// if (std::string(buffer)[0] == 'a') {
+	// 	std::cout << "slawi" << std::endl;
+	// }
+	if (str.back() == '\n')
+	{
+		Client C = get_client(client_fd);
+		if (C.get_fbuffer().size() + str.size() > 512)
+		{
+			C.set_fbuffer("");
+			std::cerr << "you have exeed the limit" << std::endl;
+			return ;
+		}
+		C.set_fbuffer(C.get_fbuffer() + str);
+	}
+	else
+	{
+		Client C = get_client(client_fd);
+		if (C.get_fbuffer().size() + str.size() > 512)
+		{
+			C.set_fbuffer("");
+			std::cerr << "you have exeed the limit" << std::endl;
+			return ;
+		}
+		C.set_fbuffer(C.get_fbuffer() + str);
+		std::vector<std::string> commands = split_buffer(C.get_fbuffer());
+		for (size_t i = 0; i < commands.size(); ++i)
+			handle_auth(commands[i], C, clients, server_password);
 	}
 	??
 }
