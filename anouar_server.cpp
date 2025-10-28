@@ -376,9 +376,7 @@ void    handle_the_req(client_info *client, std::vector<pollfd> &fds, std::vecto
 }
 
 void Commands(char *buffer, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients)
-{
-
-    //     
+{ 
     std::string str(buffer);
     std::vector<std::string> tokens;
     std::stringstream ss(str);

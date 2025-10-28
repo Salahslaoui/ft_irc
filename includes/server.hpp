@@ -13,9 +13,11 @@ class server_info
 		std::string server_password;
 		int port;
 		std::vector<pollfd> pollFds;
+		client_info Cl;
 
 		std::vector<Client> clients;
-		// std::vector<> channels;
+		std::vector<client_info> clients_s;
+		std::deque<channel> channels;
 	public:
 		server_info();
 
@@ -38,12 +40,14 @@ class server_info
 		void init();
 		void run();
 		void handle_request(int client_fd);
-		Client get_client(int fd);
+		Client *get_client(int fd);
 		void accept_client();
+
+		// ??
+		void	handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients);
 };
 
-void	handle_auth(std::string buffer, Client client_connected, std::vector<Client> &clients, std::string s_pass);
-int 	auth(std::vector<std::string> tokens, Client client, std::vector<Client> &clients, std::string s_pass);
+int 	auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &clients, std::string s_pass);
 std::vector<std::string> split(std::string buffer);
 
 #endif

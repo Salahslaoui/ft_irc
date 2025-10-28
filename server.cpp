@@ -28,13 +28,15 @@ std::string server_info::name()
 	return server_name;
 }
 
-Client server_info::get_client(int fd)
+Client *server_info::get_client(int fd)
 {
 	for (size_t i = 0; i < clients.size(); ++i)
 	{
 		if (clients[i].get_fd() == fd)
-			return (clients[i]);
+			return (&clients[i]);
 	}
+
+	return (NULL);
 }
 
 std::string server_info::password()
@@ -110,10 +112,7 @@ std::vector<std::string> split_buffer(std::string buffer)
 	std::stringstream splitter(buffer);
 	std::string line;
 	while (std::getline(splitter, line, '\n'))
-	{
-		line += '\n';
 		cmds.push_back(line);
-	}
 	return (cmds);
 }
 
@@ -141,34 +140,33 @@ void	server_info::handle_request(int client_fd)
 	buffer[received] = 0;
 	str = buffer;
 	std::cout << buffer;
-	// if (std::string(buffer)[0] == 'a') {
-	// 	std::cout << "slawi" << std::endl;
+	// if (str.back() == '\n')
+	// {
+	// 	Client *C = get_client(client_fd);
+	// 	if (C->get_fbuffer().size() + str.size() > 512)
+	// 	{
+	// 		C->set_fbuffer("");
+	// 		std::cerr << "you have exeed the limit" << std::endl;
+	// 		return ;
+	// 	}
+	// 	C->set_fbuffer(C->get_fbuffer() + str);
+	// 	std::cout << C->get_fbuffer() << std::endl;
 	// }
-	if (str.back() == '\n')
-	{
-		Client C = get_client(client_fd);
-		if (C.get_fbuffer().size() + str.size() > 512)
+	// else
+	// {
+		Client *C = get_client(client_fd);
+		if (C->get_fbuffer().size() + str.size() > 512)
 		{
-			C.set_fbuffer("");
+			C->set_fbuffer("");
 			std::cerr << "you have exeed the limit" << std::endl;
 			return ;
 		}
-		C.set_fbuffer(C.get_fbuffer() + str);
-	}
-	else
-	{
-		Client C = get_client(client_fd);
-		if (C.get_fbuffer().size() + str.size() > 512)
-		{
-			C.set_fbuffer("");
-			std::cerr << "you have exeed the limit" << std::endl;
-			return ;
-		}
-		C.set_fbuffer(C.get_fbuffer() + str);
-		std::vector<std::string> commands = split_buffer(C.get_fbuffer());
+		C->set_fbuffer(C->get_fbuffer() + str);
+		std::vector<std::string> commands = split_buffer(C->get_fbuffer());
 		for (size_t i = 0; i < commands.size(); ++i)
-			handle_auth(commands[i], C, clients, server_password);
-	}
+			handle_auth(commands[i], C, clients);
+		C->set_fbuffer("");
+	// }
 }
 
 void server_info::init()
