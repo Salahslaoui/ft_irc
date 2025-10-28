@@ -2,6 +2,7 @@
 # define SERVER_HPP
 
 #include "channel.hpp"
+#include "client.hpp"
 
 class server_info
 {
@@ -13,7 +14,7 @@ class server_info
 		int port;
 		std::vector<pollfd> pollFds;
 
-		// std::vector<> clients;
+		std::vector<Client> clients;
 		// std::vector<> channels;
 	public:
 		server_info();
@@ -24,6 +25,7 @@ class server_info
 		bool is_running();
 		std::string name();
 		std::string password();
+		std::vector<Client> get_clients();
 
 		// setters
 		void set_fd(int fd);
@@ -31,11 +33,17 @@ class server_info
 		void set_server_run(bool flag);
 		void set_name(std::string name);
 		void set_password(std::string pass);
+		void set_clients(std::vector<Client> set);
 		
 		void init();
 		void run();
 		void handle_request(int client_fd);
+		Client get_client(int fd);
 		void accept_client();
 };
+
+void	handle_auth(std::string buffer, Client client_connected, std::vector<Client> &clients, std::string s_pass);
+int 	auth(std::vector<std::string> tokens, Client client, std::vector<Client> &clients, std::string s_pass);
+std::vector<std::string> split(std::string buffer);
 
 #endif
