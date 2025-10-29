@@ -1,8 +1,8 @@
 NAME = exec
-SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privmsg.cpp commands/invite.cpp helpers/helpers.cpp commands/topic.cpp commands/kick.cpp main.cpp
+SRC = server.cpp channel.cpp commands/join.cpp commands/mode.cpp commands/privmsg.cpp commands/invite.cpp helpers/helpers.cpp commands/topic.cpp commands/kick.cpp main.cpp client.cpp server_auth.cpp
 
 OBJ = $(SRC:%.cpp=%.o)
-INCLUDE = includes/channel.hpp includes/helper.hpp
+INCLUDE = includes/channel.hpp includes/helper.hpp includes/server.hpp includes/client.hpp
 
 CC = c++
 CFLAGS =

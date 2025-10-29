@@ -72,6 +72,18 @@ void server_info::set_password(std::string pass)
 	server_password = pass;
 }
 
+void server_info::remove_client(int fd)
+{
+    close(fd);
+    for (size_t i = 0; i < clients.size(); ++i)
+        if (clients[i].get_fd() == fd)
+            clients.erase(clients.begin() + i);
+    for (size_t i = 0; i < pollFds.size(); ++i)
+        if (pollFds[i].fd == fd)
+            pollFds.erase(pollFds.begin() + i);
+}
+
+
 void	server_info::accept_client()
 {
 	Client inst;
@@ -128,14 +140,14 @@ void	server_info::handle_request(int client_fd)
 	int received = recv(client_fd, buffer, 1024, 0);
 	if (received == -1) 
 	{
-		// remove_client()
+		remove_client(client_fd);
 		std::cerr << "recv failed!!" << std::endl;
 		return ;
 	}
 	else if (received == 0)
 	{
 		std::cout << "client disconnected" << std::endl;
-		// remove_client()
+		remove_client(client_fd);
 		return ;
 	} 
 	buffer[received] = 0;
@@ -221,26 +233,36 @@ void server_info::run()
 	std::cout << "IRC server is running!" << std::endl;
 	while (server_running)
 	{
+		std::cout << "----------" << std::endl;
+		for (int i = 0; i < clients.size(); i++)
+		{	
+			std::cout << clients[i].get_fd() << std::endl;
+		}
+		std::cout << "----------" << std::endl;
 		if (poll(&pollFds[0], pollFds.size(), -1) == -1)
 			throw std::runtime_error("poll faiiiiiiiiiiiled!");
-		for (struct pollfd& e : pollFds)
+		for (int i = 0; i < pollFds.size() ; i++)
 		{
-			bool mask = e.revents & POLLIN ;
-			if (mask) {
-				if (e.fd == socket_fd)
+			if (pollFds[i].revents & POLLIN)
+			{
+				if (pollFds[i].fd == socket_fd)
 				{
-					if (e.revents & POLLIN)
+					if (pollFds[i].revents & POLLIN)
 						accept_client();
 					// if (e.revents & POLLOUT)
 					// 	// NOTHING
-					// if (false) 
-					// 	// remove_client()
+
 				}
 				else
 				{
-					if (e.events & POLLIN) {
+					if (pollFds[i].events & POLLIN  && !(pollFds[i].revents & POLLERR)) {
 						// std::cout << "masked!" << (e.fd & POLLIN) << std::endl;
-						handle_request(e.fd);
+						handle_request(pollFds[i].fd);
+					}
+					if (pollFds[i].revents & POLLERR) 
+					{
+						remove_client(pollFds[i].fd);
+						i--;
 					}
 				}
 			}

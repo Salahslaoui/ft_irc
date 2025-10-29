@@ -40,6 +40,8 @@ class server_info
 		void handle_request(int client_fd);
 		Client get_client(int fd);
 		void accept_client();
+		void remove_client(int fd);
+
 };
 
 void	handle_auth(std::string buffer, Client client_connected, std::vector<Client> &clients, std::string s_pass);
