@@ -84,10 +84,12 @@ struct client_info
 class channel
 {
     public:
+        void remove_client(std::string nickname);
+        void remove_moderator(std::string nickname);
+        void remove_invited(std::string nickname);
         channel();
         std::string get_client_ip(int client_fd);
 		void broadcast(const std::string& msg, const client_info& sender, bool flag);
-        // std::string Modes();
         std::string name;
         std::string key;
         std::vector<client_info> clients;

@@ -13,7 +13,7 @@ std::string numeric_reply_user(const std::string& code)
 void send_numeric_user(client_info* client, const std::string& code)
 {
     std::string error = numeric_reply_user(code);
-    ksend(client->fd, error.c_str(), error.size(), 0);
+    send(client->fd, error.c_str(), error.size(), 0);
 }
 
 

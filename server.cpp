@@ -181,9 +181,19 @@ int	server_info::handle_request(int client_fd)
 	} 
 	buffer[received] = 0;
 	str = buffer;
-	std::cout << buffer;
-	// else
-	// {
+	if (!str.empty() && str[str.size() - 1] != '\n')
+	{
+		Client *C = get_client(client_fd);
+		if (C->get_fbuffer().size() + str.size() > 512)
+		{
+			C->set_fbuffer("");
+			std::cerr << "you have exeed the limit" << std::endl;
+			return 0;
+		}
+		C->set_fbuffer(C->get_fbuffer() + str);
+	}
+	else
+	{
 		Client *C = get_client(client_fd);
 		if (C->get_fbuffer().size() + str.size() > 512)
 		{
@@ -200,6 +210,7 @@ int	server_info::handle_request(int client_fd)
 			handle_auth(commands[i], C, clients);
 		}
 		C->set_fbuffer("");
+	}
 	return 0;
 }
 
