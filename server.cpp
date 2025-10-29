@@ -1,4 +1,5 @@
 #include "includes/server.hpp"
+#include "includes/helper.hpp"
 
 server_info::server_info() : socket_fd(0), server_running(false)
 {}
@@ -180,18 +181,6 @@ int	server_info::handle_request(int client_fd)
 	buffer[received] = 0;
 	str = buffer;
 	std::cout << buffer;
-	// if (str.back() == '\n')
-	// {
-	// 	Client *C = get_client(client_fd);
-	// 	if (C->get_fbuffer().size() + str.size() > 512)
-	// 	{
-	// 		C->set_fbuffer("");
-	// 		std::cerr << "you have exeed the limit" << std::endl;
-	// 		return ;
-	// 	}
-	// 	C->set_fbuffer(C->get_fbuffer() + str);
-	// 	std::cout << C->get_fbuffer() << std::endl;
-	// }
 	// else
 	// {
 		Client *C = get_client(client_fd);
@@ -204,7 +193,11 @@ int	server_info::handle_request(int client_fd)
 		C->set_fbuffer(C->get_fbuffer() + str);
 		std::vector<std::string> commands = split_buffer(C->get_fbuffer());
 		for (size_t i = 0; i < commands.size(); ++i)
+		{
+			if (trim(commands[i]).empty())
+        		continue;
 			handle_auth(commands[i], C, clients);
+		}
 		C->set_fbuffer("");
 	return 0;
 }

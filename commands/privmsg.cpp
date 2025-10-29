@@ -80,9 +80,21 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
         {
             if (targets[i] == clients[j].nickname)
             {
+                if (clients[j].has_register == 0)
+                {
+                    std::string str = ":ircserv ";
+                    str += ERR_NOSUCHNICK;
+                    str += " ";
+                    str += client_connected->nickname;
+                    str += " ";
+                    str += targets[i];
+                    str += " :No such nick/channel\r\n";
+                    send(client_connected->fd, str.c_str(), str.size(), 0);
+                    flag = 1;
+                    break;
+                }
 				std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
 							"@" + get_client_ipp(client_connected->fd) + " PRIVMSG " + clients[j].nickname + " :" + msg;
-				std::cout << broadcast_msg << std::endl;
                 send(clients[j].fd, broadcast_msg.c_str(), broadcast_msg.size(), 0);
                 flag = 1;
                 break;

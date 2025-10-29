@@ -45,7 +45,7 @@ class server_info
 		void remove_client(int fd);
 		void	handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients);};
 
-int 	auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &clients, std::string s_pass);
+int 	auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &clients, std::string s_pass, std::deque<channel> &channels);
 std::vector<std::string> split(std::string buffer);
 
 #endif
