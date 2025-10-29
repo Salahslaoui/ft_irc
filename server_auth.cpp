@@ -1,5 +1,6 @@
 #include "includes/server.hpp"
 #include "includes/helper.hpp"
+#include "includes/channel.hpp"
 
 int dup_nick(std::string name, std::vector<Client> clients)
 {
@@ -9,6 +10,16 @@ int dup_nick(std::string name, std::vector<Client> clients)
             return (1);
     }
     return (0);
+}
+
+void send_it(Client client, std::string str)
+{
+	send(client.get_fd(), str.c_str(),str.size(), 0);
+}
+
+void send_it_cl(client_info *client, std::string str)
+{
+	send(client->fd, str.c_str(),str.size(), 0);
 }
 
 void    other_prec(std::deque<channel> &channels, std::string str, Client *client)
@@ -51,21 +62,21 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
 			str += ":ircserv ";
 			str += ERR_NEEDMOREPARAMS;
 			str += " * :Invalid numbers of arguments\r\n";
-			return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+			return (send_it(*client, str), 0);
 		}
 		else if (tokens[1] != s_pass)
 		{
 			str += ":ircserv ";
 			str += ERR_PASSWDMISMATCH;
 			str += " * :Password incorrect\r\n";
-			return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+			return (send_it(*client, str), 0);
 		}
 		else if (client->get_pass_auth())
 		{
 			str += ":ircserv ";
 			str += ERR_ALREADYREGISTERED;
 			str += " * :Already registred\r\n";
-			return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+			return (send_it(*client, str), 0);
 		}
 		else
 		{
@@ -84,14 +95,14 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
             str += ":ircserv ";
             str += ERR_NEEDMOREPARAMS;
 			str += " * :Invalid numbers of arguments\r\n";
-            return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+            return (send_it(*client, str), 0);
         }
         else if (client->get_pass_auth() == 0)
         {
             str += ":ircserv ";
             str += ERR_NOTREGISTERED;
             str += " * : You have not registered\r\n";
-            return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+            return (send_it(*client, str), 0);
         }
         // else if (client->get_nick_auth())
         // {
@@ -107,7 +118,7 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
             str += " * ";
             str += tokens[1];
             str += " : Nickname is already in use\r\n";
-            return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+            return (send_it(*client, str), 0);
         }
         else
         {
@@ -125,28 +136,28 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
             str += ":ircserv ";
             str += ERR_NOTREGISTERED;
             str += " * : You have not registered\r\n";
-            return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+            return (send_it(*client, str), 0);
         }
         else if (tokens.size() < 5)
         {
             str += ":ircserv ";
             str += ERR_NEEDMOREPARAMS;
             str += " : Invalid parameters\r\n";
-            return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+            return (send_it(*client, str), 0);
         }
         else if (client->get_user_auth())
         {
 			str += ":ircserv ";
 			str += ERR_ALREADYREGISTERED;
 			str += " * :Already registred\r\n";
-			return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+			return (send_it(*client, str), 0);
         }
         else if (client->get_nick_auth() == 0)
         {
             str += ":ircserv ";
             str += ERR_NONICKNAMEGIVEN;
             str += " * : You must specify your nickname before user\r\n";
-            return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+            return (send_it(*client, str), 0);
         }
         else
         {
@@ -183,6 +194,7 @@ client_info converter(Client *client)
     tmp.nickname = client->get_nick();
     tmp.fd = client->get_fd();
     tmp.has_register = client->get_regt();
+	tmp.poll_check = client->get_revent();
     return (tmp);
 }
 
@@ -208,7 +220,7 @@ void Commands(std::vector<std::string> tokens, std::deque<channel> &channels, cl
 		if (tokens.size() > 1)
 		{
 			std::string pong = "PONG " + tokens[1] + "\r\n";
-			send(client_connected->fd, pong.c_str(), pong.size(), 0);
+			send_it_cl(client_connected, pong);
 		}
 	}
     // else if (tokens[0] == "USER")

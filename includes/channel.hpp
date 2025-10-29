@@ -75,6 +75,7 @@ struct client_info
     int PASS_flag;
     int Nickname_flag;
     int Username_flag;
+	short *poll_check;
     std::string leftover;
     
     client_info() : fd(-1), has_register(0), PASS_flag(0), Nickname_flag(0), Username_flag(0) {}
@@ -112,6 +113,8 @@ void send_numeric(client_info* client, const std::string& code, const std::strin
 void privmsg(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients);
 void topic(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
 void kick(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected);
+void send_it(Client client, std::string str);
+void send_it_cl(client_info *client, std::string str);
 std::string get_client_ipp(int client_fd);
 
 #endif

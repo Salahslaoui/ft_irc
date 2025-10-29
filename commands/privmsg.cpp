@@ -89,13 +89,13 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
                     str += " ";
                     str += targets[i];
                     str += " :No such nick/channel\r\n";
-                    send(client_connected->fd, str.c_str(), str.size(), 0);
+                    send_it_cl(client_connected, str);;
                     flag = 1;
                     break;
                 }
 				std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
 							"@" + get_client_ipp(client_connected->fd) + " PRIVMSG " + clients[j].nickname + " :" + msg;
-                send(clients[j].fd, broadcast_msg.c_str(), broadcast_msg.size(), 0);
+                send_it_cl(client_connected, broadcast_msg);
                 flag = 1;
                 break;
             }
