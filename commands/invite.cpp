@@ -1,4 +1,5 @@
 #include "../includes/channel.hpp"
+#include "../includes/helper.hpp"
 
 void invite(std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients, std::vector<std::string> tokens)
 {

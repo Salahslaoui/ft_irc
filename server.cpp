@@ -138,13 +138,13 @@ void	server_info::accept_client()
 	struct pollfd tmp2;
 
 	tmp2.fd = client_fd;
-	tmp2.events = POLLIN | POLLOUT;
+	tmp2.events = POLLIN;
 	tmp2.revents = 0;
 
 	pollFds.push_back(tmp2);
 
 	inst.set_fd(client_fd);
-	inst.set_revent(&tmp2.revents);
+	inst.set_revent(&pollFds.back().revents);
 	clients.push_back(inst);
 }
 
@@ -252,12 +252,6 @@ void server_info::run()
 	std::cout << "IRC server is running!" << std::endl;
 	while (server_running)
 	{
-		std::cout << "----------" << std::endl;
-		for (int i = 0; i < clients.size(); i++)
-		{	
-			std::cout << clients[i].get_fd() << std::endl;
-		}
-		std::cout << "----------" << std::endl;
 		if (poll(&pollFds[0], pollFds.size(), -1) == -1)
 			throw std::runtime_error("poll faiiiiiiiiiiiled!");
 		for (int i = 0; i < pollFds.size() ; i++)

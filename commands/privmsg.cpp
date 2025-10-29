@@ -1,19 +1,5 @@
 #include "../includes/channel.hpp"
-
-std::string get_client_ipp(int client_fd)
-{
-    struct sockaddr_in addr;
-    socklen_t addr_len = sizeof(addr);
-    char ip[INET_ADDRSTRLEN];
-
-    if (getpeername(client_fd, (struct sockaddr*)&addr, &addr_len) == -1)
-        return "unknown";
-
-    if (inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN) == NULL)
-        return "unknown";
-
-    return std::string(ip);
-}
+#include "../includes/helper.hpp"
 
 std::string parse_msg(std::vector<std::string> tokens)
 {

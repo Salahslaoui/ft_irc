@@ -1,6 +1,7 @@
 #include "includes/server.hpp"
 #include "includes/helper.hpp"
 #include "includes/channel.hpp"
+#include "includes/client.hpp"
 
 int dup_nick(std::string name, std::vector<Client> clients)
 {
@@ -14,13 +15,11 @@ int dup_nick(std::string name, std::vector<Client> clients)
 
 void send_it(Client client, std::string str)
 {
-	send(client.get_fd(), str.c_str(),str.size(), 0);
+	if (*(client.get_revent()) & POLLOUT)
+		send(client.get_fd(), str.c_str(),str.size(), 0);
 }
 
-void send_it_cl(client_info *client, std::string str)
-{
-	send(client->fd, str.c_str(),str.size(), 0);
-}
+
 
 void    other_prec(std::deque<channel> &channels, std::string str, Client *client)
 {
@@ -233,7 +232,7 @@ void Commands(std::vector<std::string> tokens, std::deque<channel> &channels, cl
         send_numeric(client_connected, "421", tokens[0], "Unknown command");
 }
 
-void	server_info::handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients)
+void server_info::handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients)
 {
 	std::vector<std::string> tokens;
 
