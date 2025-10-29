@@ -149,6 +149,7 @@ void	server_info::accept_client()
 	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "Error: fcntl failed" << std::endl;
+		close (client_fd);
 		return;
 	}
 
