@@ -1,6 +1,6 @@
 #include "includes/client.hpp"
 
-Client::Client() : nickname("nickname"), username("unknown"), realname("unknown"), f_buffer(""), registred(0), pass_auth(0), user_auth(0), nick_auth(0), fd(-1)
+Client::Client() : nickname("nickname"), username("unknown"), realname("unknown"), f_buffer(""), registred(0), pass_auth(0), user_auth(0), nick_auth(0), fd(-1), flag(1)
 {}
 
 Client::~Client()
@@ -29,6 +29,11 @@ int Client::get_user_auth()
 int Client::get_nick_auth()
 {
     return (nick_auth);
+}
+
+int Client::get_flag()
+{
+	return (flag);
 }
 
 std::string Client::get_fbuffer()
@@ -90,6 +95,11 @@ void Client::set_regt(int set)
 void Client::set_pass_auth(int set)
 {
     pass_auth = set;
+}
+
+void Client::set_flag(int set)
+{
+	flag = set;
 }
 
 void Client::set_username(std::string set)
