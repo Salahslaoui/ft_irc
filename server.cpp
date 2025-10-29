@@ -252,15 +252,9 @@ void server_info::run()
 	std::cout << "IRC server is running!" << std::endl;
 	while (server_running)
 	{
-		std::cout << "----------" << std::endl;
-		for (int i = 0; i < clients.size(); i++)
-		{	
-			std::cout << clients[i].get_fd() << std::endl;
-		}
-		std::cout << "----------" << std::endl;
 		if (poll(&pollFds[0], pollFds.size(), -1) == -1)
 			throw std::runtime_error("poll faiiiiiiiiiiiled!");
-		for (int i = 0; i < pollFds.size() ; i++)
+		for (size_t i = 0; i < pollFds.size() ; i++)
 		{
 			if (pollFds[i].revents & POLLIN)
 			{

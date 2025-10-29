@@ -15,7 +15,7 @@ void channel::broadcast(const std::string& msg, const client_info& sender, bool 
 
         ssize_t sent = send(clients[i].fd, message.c_str(), message.size(), 0);
         if (sent == -1)
-            perror(("send failed to " + clients[i].nickname).c_str());
+            std::cerr << "send failed to " << clients[i].nickname << std::endl;
         else if ((size_t)sent < message.size())
             std::cerr << "Warning: partial send to " << clients[i].nickname << std::endl;
     }

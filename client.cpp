@@ -1,6 +1,6 @@
 #include "includes/client.hpp"
 
-Client::Client() : fd(-1), registred(0), username("unknown"), nickname("nickname"), realname("unknown"),f_buffer(""), pass_auth(0), user_auth(0), nick_auth(0)
+Client::Client() : nickname("nickname"), username("unknown"), realname("unknown"), f_buffer(""), registred(0), pass_auth(0), user_auth(0), nick_auth(0), fd(-1)
 {}
 
 Client::~Client()

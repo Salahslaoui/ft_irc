@@ -200,7 +200,7 @@ client_info converter(Client *client)
 
 void Commands(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients)
 {
-	for (int i = 0; i < tokens.size(); i++)
+	for (size_t i = 0; i < tokens.size(); i++)
 		std::cout << tokens[i] << " ";
 	std::cout << std::endl;
 	if (tokens[0] == "JOIN" || tokens[0] == "join")
@@ -238,8 +238,9 @@ void	server_info::handle_auth(std::string buffer, Client *client_connected, std:
 	std::vector<std::string> tokens;
 
 	tokens = split(buffer);
-    if (tokens.empty())
-        return ;
+    if (tokens.empty()) {
+        return;
+    }
 
 	if (!auth(tokens, client_connected, clients, server_password, channels))
 		return ;
