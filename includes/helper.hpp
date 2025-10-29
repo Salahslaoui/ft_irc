@@ -20,5 +20,6 @@ channel* find_channel(const std::string &channel_to_find, std::deque<channel> &c
 void send_it(Client client, std::string str);
 void send_it_cl(client_info *client, std::string str);
 std::string get_client_ipp(int client_fd);
+client_info converter(Client *client);
 
 #endif

@@ -13,17 +13,6 @@ int dup_nick(std::string name, std::vector<Client> clients)
     return (0);
 }
 
-client_info converter(Client *client)
-{
-    client_info tmp;
-
-    tmp.username = client->get_username();
-    tmp.nickname = client->get_nick();
-    tmp.fd = client->get_fd();
-    tmp.has_register = client->get_regt();
-	tmp.poll_check = client->get_revent();
-    return (tmp);
-}
 
 void send_it(Client client, std::string str)
 {

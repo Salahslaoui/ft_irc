@@ -3,7 +3,9 @@
 
 #include "channel.hpp"
 #include "client.hpp"
+#include "helper.hpp"
 #include <cerrno>
+
 
 class server_info
 {

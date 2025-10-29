@@ -3,6 +3,52 @@
 channel::channel() : max_clients(0), topic_flag(false), i(false), t(false), k(false), l(false)
 {}
 
+void channel::remove_client(std::string nickname)
+{
+    for (std::vector<client_info>::iterator it = clients.begin(); it != clients.end();)
+    {
+        if (it->nickname == nickname)
+            it = clients.erase(it);
+        else
+            ++it;
+    }
+}
+
+bool channel::remove_moderator(std::string nickname)
+{
+    for (std::vector<client_info>::iterator it = moderators.begin(); it != moderators.end();)
+    {
+        if (it->nickname == nickname)
+            it = moderators.erase(it);
+        else
+            ++it;
+    }
+
+    if (moderators.empty() && !clients.empty())
+    {
+        moderators.push_back(clients.front());
+
+        std::cout << "Promoted " << clients.front().nickname
+                  << " to channel operator for " << name << std::endl;
+    }
+
+    if (clients.empty())
+        return true;
+	else
+		return false;
+}
+
+void channel::remove_invited(std::string nickname)
+{
+    for (std::vector<client_info>::iterator it = invited.begin(); it != invited.end();)
+    {
+        if (it->nickname == nickname)
+            it = clients.erase(it);
+        else
+            ++it;
+    }
+}
+
 void channel::broadcast(const std::string& msg, const client_info& sender, bool flag)
 {
     std::string message = msg;

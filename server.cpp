@@ -76,14 +76,61 @@ void server_info::set_password(std::string pass)
 
 void server_info::remove_client(int fd)
 {
-    close(fd);
+    Client *client_to_remove = get_client(fd);
+    if (!client_to_remove)
+        return;
+
+    std::string nick = client_to_remove->get_nick();
+    std::string user = client_to_remove->get_username();
+
+    // Construct standard IRC QUIT message
+
+	// 1️⃣ Safely iterate using iterators
+    for (size_t i = 0; i < channels.size(); ++i)
+    {
+
+		std::string quit_msg = ":" + nick + "!" + user + "@" + channels[i].get_client_ip(fd) + " QUIT :Client disconnected";
+
+		channels[i].broadcast(quit_msg, converter(client_to_remove), true);
+        channels[i].remove_invited(nick);
+
+        channels[i].remove_client(nick);
+
+        if (channels[i].remove_moderator(nick))
+        {
+            std::cout << "Channel " << channels[i].name
+                      << " removed because it became empty." << std::endl;
+
+            channels.erase(channels.begin() + i);
+            continue;
+        }
+
+    }
+
+	
     for (size_t i = 0; i < clients.size(); ++i)
-        if (clients[i].get_fd() == fd)
-            clients.erase(clients.begin() + i);
+    {
+		if (clients[i].get_fd() == fd)
+        {
+			clients.erase(clients.begin() + i);
+            break;
+        }
+    }
+	
     for (size_t i = 0; i < pollFds.size(); ++i)
-        if (pollFds[i].fd == fd)
-            pollFds.erase(pollFds.begin() + i);
+    {
+		if (pollFds[i].fd == fd)
+        {
+			pollFds.erase(pollFds.begin() + i);
+            break;
+        }
+    }
+	
+	close(fd);
+    std::cout << "Client " << nick << " disconnected and cleaned up." << std::endl;
 }
+
+
 
 
 void	server_info::accept_client()
@@ -93,7 +140,6 @@ void	server_info::accept_client()
 	sockaddr_in tmp;
 	bzero(&tmp, sizeof(sockaddr_in));
 	socklen_t size = sizeof(sockaddr_in);
-	// fcntl ... ... .
 	int client_fd = accept(socket_fd, (sockaddr *)&tmp, &size);
 	if (client_fd == -1)
 	{
@@ -151,21 +197,20 @@ void	server_info::handle_request(int client_fd)
 	} 
 	buffer[received] = 0;
 	str = buffer;
-	std::cout << buffer;
-	// if (str.back() == '\n')
-	// {
-	// 	Client *C = get_client(client_fd);
-	// 	if (C->get_fbuffer().size() + str.size() > 512)
-	// 	{
-	// 		C->set_fbuffer("");
-	// 		std::cerr << "you have exeed the limit" << std::endl;
-	// 		return ;
-	// 	}
-	// 	C->set_fbuffer(C->get_fbuffer() + str);
-	// 	std::cout << C->get_fbuffer() << std::endl;
-	// }
-	// else
-	// {
+
+	if (!str.empty() && str[str.size() - 1] != '\n')
+	{
+		Client *C = get_client(client_fd);
+		if (C->get_fbuffer().size() + str.size() > 512)
+		{
+			C->set_fbuffer("");
+			std::cerr << "you have exeed the limit" << std::endl;
+			return ;
+		}
+		C->set_fbuffer(C->get_fbuffer() + str);
+	}
+	else
+	{
 		Client *C = get_client(client_fd);
 		if (C->get_fbuffer().size() + str.size() > 512)
 		{
@@ -178,7 +223,7 @@ void	server_info::handle_request(int client_fd)
 		for (size_t i = 0; i < commands.size(); ++i)
 			handle_auth(commands[i], C, clients);
 		C->set_fbuffer("");
-	// }
+	}
 }
 
 void server_info::init()
@@ -194,10 +239,13 @@ void server_info::init()
 		close (socket_fd);
 		throw std::runtime_error("Error: setsockopt failed!");
 	}
-
+	
 	if (fcntl(socket_fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		close (socket_fd);
 		throw std::runtime_error("fcntl failed!");
-
+	}
+	
 	struct sockaddr_in server_address;
     std::memset(&server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
@@ -218,7 +266,7 @@ void server_info::init()
 	struct pollfd s_poll;
     s_poll.fd = socket_fd;
 
-    s_poll.events = POLLIN | POLLOUT | POLLERR;
+    s_poll.events = POLLIN | POLLERR;
     s_poll.revents = 0;
     pollFds.push_back(s_poll);
 
@@ -231,32 +279,19 @@ void server_info::run()
 	std::cout << "IRC server is running!" << std::endl;
 	while (server_running)
 	{
-		std::cout << "----------" << std::endl;
-		for (size_t i = 0; i < clients.size(); i++)
-		{	
-			std::cout << clients[i].get_fd() << std::endl;
-		}
-		std::cout << "----------" << std::endl;
 		if (poll(&pollFds[0], pollFds.size(), -1) == -1)
-			throw std::runtime_error("poll faiiiiiiiiiiiled!");
+			throw std::runtime_error("Error: poll failed!");
 		for (size_t i = 0; i < pollFds.size() ; i++)
 		{
 			if (pollFds[i].revents & POLLIN)
 			{
 				if (pollFds[i].fd == socket_fd)
-						accept_client();
+					accept_client();
 				else
-				{
-					if (pollFds[i].revents & POLLIN  && !(pollFds[i].revents & POLLERR)) {
-						handle_request(pollFds[i].fd);
-					}
-					if (pollFds[i].revents & POLLERR) 
-					{
-						remove_client(pollFds[i].fd);
-						i--;
-					}
-				}
+					handle_request(pollFds[i].fd);
 			}
+			if (pollFds[i].revents & POLLERR) 
+				remove_client(pollFds[i].fd);
 		}
 	}
 }	

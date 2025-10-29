@@ -6,7 +6,7 @@ OBJ = $(SRC:%.cpp=%.o)
 INCLUDE = includes/channel.hpp includes/helper.hpp includes/server.hpp includes/client.hpp
 
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 all: $(NAME)
 

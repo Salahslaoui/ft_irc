@@ -77,3 +77,16 @@ std::string get_client_ipp(int client_fd)
 
     return std::string(ip);
 }
+
+
+client_info converter(Client *client)
+{
+    client_info tmp;
+
+    tmp.username = client->get_username();
+    tmp.nickname = client->get_nick();
+    tmp.fd = client->get_fd();
+    tmp.has_register = client->get_regt();
+	tmp.poll_check = client->get_revent();
+    return (tmp);
+}
