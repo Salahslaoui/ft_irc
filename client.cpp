@@ -51,6 +51,11 @@ int Client::get_fd()
     return (fd);
 }
 
+short *Client::get_revent()
+{
+	return poll_check;
+}
+
 
 void Client::set_nick(std::string set)
 {
@@ -95,4 +100,9 @@ void Client::set_username(std::string set)
 void Client::set_fd(int set)
 {
     fd = set;
+}
+
+void Client::set_revent(short *nvent)
+{
+	poll_check = nvent;
 }

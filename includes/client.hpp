@@ -15,6 +15,7 @@ class Client
         int user_auth;
         int nick_auth;
         int fd;
+		short *poll_check;
     public:
         Client();
         ~Client();
@@ -28,7 +29,7 @@ class Client
         int get_nick_auth();
         int get_regt();
         int get_fd();
-
+		short *get_revent();
     // setters
         void set_nick(std::string set);
         void set_username(std::string set);
@@ -39,6 +40,7 @@ class Client
         void set_nick_auth(int set);
         void set_regt(int set);
         void set_fd(int set);
+		void set_revent(short *nvent);
     // tools
 
 };

@@ -144,6 +144,7 @@ void	server_info::accept_client()
 	pollFds.push_back(tmp2);
 
 	inst.set_fd(client_fd);
+	inst.set_revent(&tmp2.revents);
 	clients.push_back(inst);
 }
 
@@ -188,7 +189,7 @@ int	server_info::handle_request(int client_fd)
 		{
 			C->set_fbuffer("");
 			std::cerr << "you have exeed the limit" << std::endl;
-			return ;
+			return 0;
 		}
 		C->set_fbuffer(C->get_fbuffer() + str);
 		std::vector<std::string> commands = split_buffer(C->get_fbuffer());
