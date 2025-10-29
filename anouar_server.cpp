@@ -39,7 +39,8 @@ void    send_numeric_nick(client_info* client, const std::string& code, std::str
         error = ":localhost" + code + " " + command + " :Erroneus nickname" +  "\r\n";
     else if (flag == NICK_INUSE)
         error = ":localhost" + code + " " + command + " :Nickname is already in use" +  "\r\n";
-    send(client->fd, error.c_str(), error.size(), 0);
+	if (*(client->poll_check) & POLLOUT)
+    	send(client->fd, error.c_str(), error.size(), 0);
 }
 
 void    accept_client(int server_fd, std::vector<pollfd> &fd, std::vector<client_info> &clients)

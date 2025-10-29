@@ -64,6 +64,7 @@
 #include <algorithm>
 #include <limits.h>
 #include <fcntl.h>
+#include "client.hpp"
 
 struct client_info
 {

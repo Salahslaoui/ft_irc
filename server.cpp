@@ -138,13 +138,13 @@ void	server_info::accept_client()
 	struct pollfd tmp2;
 
 	tmp2.fd = client_fd;
-	tmp2.events = POLLIN | POLLOUT;
+	tmp2.events = POLLIN;
 	tmp2.revents = 0;
 
 	pollFds.push_back(tmp2);
 
 	inst.set_fd(client_fd);
-	inst.set_revent(&tmp2.revents);
+	inst.set_revent(&pollFds.back().revents);
 	clients.push_back(inst);
 }
 
