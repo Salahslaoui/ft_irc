@@ -6,9 +6,9 @@ bool modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 	client_info *client = find_client(Client_to_add, di_channel->clients);
 
 	if (!client)
-		return (send_numeric(client_connected, ERR_USERNOTINCHANNEL, Client_to_add + " " +di_channel->name, "They aren't on that channel\n"), false);
+		return (send_numeric(client_connected, ERR_USERNOTINCHANNEL, Client_to_add + " " +di_channel->name, "They aren't on that channel"), false);
 	if (!to_add && client->nickname == client_connected->nickname)
-		return (send_numeric(client_connected, ERR_UNKNOWNCOMMAND, Client_to_add + " " +di_channel->name, "Cannot remove privileges from yourself\n"), false);
+		return (send_numeric(client_connected, ERR_UNKNOWNCOMMAND, Client_to_add + " " +di_channel->name, "Cannot remove privileges from yourself"), false);
 	
 	if (to_add)
 	{
@@ -18,7 +18,7 @@ bool modify_channel_op(channel* di_channel, std::string Client_to_add, bool to_a
 	else
 	{
 		if (di_channel->moderators.size() == 1 && check_if_op(di_channel, Client_to_add))
-    		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, di_channel->name, "Cannot remove the only channel operator\n"), false);
+    		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, di_channel->name, "Cannot remove the only channel operator"), false);
 		for (std::vector<client_info>::iterator it = di_channel->moderators.begin();
 			it != di_channel->moderators.end(); ++it)
 		{
@@ -46,25 +46,25 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 
 	// checks if it has valid args
 	if (tokens.size() < 3)
-		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n"));
+		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters"));
 
 	// checks if the channel name exists
 	channel_name = tokens[1];
 	if (!(di_channel = find_channel(channel_name, channels)))
-		return (send_numeric(client_connected, ERR_NOSUCHCHANNEL, channel_name, "No such channel\n"));
+		return (send_numeric(client_connected, ERR_NOSUCHCHANNEL, channel_name, "No such channel"));
 
 	// check if the client is a member in the channel
 	if (!find_client(client_connected->nickname, di_channel->clients))
-		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel\n"));
+		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel"));
 	
 	// check if the client is an operator
 	if (!check_if_op(di_channel, client_connected->nickname))
-		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator\n"));
+		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator"));
 	
 	// check if modes are valid
 	modes = tokens[2];
 	if (tokens[2].empty() || (tokens[2][0] != '+' && tokens[2][0] != '-')) 
-		return (send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1,tokens[2][0]), "is unknown mode char to me\n"));
+		return (send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1,tokens[2][0]), "is unknown mode char to me"));
 
 	for (size_t i = 0; i < modes.size(); i++)
 	{
@@ -96,7 +96,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 			{
 				if (args_start >= tokens.size())
 				{
-					send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n");
+					send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters");
 					continue;
 				}
 				valid_modes.push_back(std::make_pair(modes[i], tokens[args_start]));
@@ -114,7 +114,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 		{
 			if (args_start >= tokens.size())
 			{
-				send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n");
+				send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters");
 				continue;
 			}
 			bool flag = modify_channel_op(di_channel, tokens[args_start], add, client_connected);
@@ -127,7 +127,7 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 			{
 				if (args_start >= tokens.size())
 				{
-					send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters\n");
+					send_numeric(client_connected, ERR_NEEDMOREPARAMS, "MODE", "Not enough parameters");
 					continue;
 				}
 
@@ -146,20 +146,20 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 
 				if (!valid)
 				{
-					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "Invalid user limit\n");
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "Invalid user limit");
 					continue;
 				}
 
 				long_limit = atol(limit_str.c_str());
 				if (long_limit > INT_MAX)
 				{
-					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "User limit too big\n");
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "User limit too big");
 					continue;
 				}
 
 				if (long_limit <= 0)
 				{
-					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "User limit must be positive\n");
+					send_numeric(client_connected, ERR_UNKNOWNMODE, "l", "User limit must be positive");
 					continue;
 				}
 
@@ -175,14 +175,13 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 			}
 		}
 		else
-			send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1, modes[i]), " is unknown mode char to me\n");
+			send_numeric(client_connected, ERR_UNKNOWNMODE, std::string(1, modes[i]), " is unknown mode char to me");
 	}
 
-	//  Broadcast the mode change to everyone in the channel
 	std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
 	                            "@" + di_channel->get_client_ip(client_connected->fd) + " MODE " + di_channel->name + " ";
 
-	// First loop → append all the mode characters in order
+
 	for (size_t i = 0; i < valid_modes.size(); ++i)
 	{
 		if ((valid_modes[i].first == '+' || valid_modes[i].first == '-') && (i + 1 >= valid_modes.size()
@@ -192,7 +191,6 @@ void mode(std::vector<std::string> tokens, std::deque<channel> &channels, client
 		broadcast_msg += valid_modes[i].first;
 	}
 
-	// Second loop → append all the arguments
 	for (size_t i = 0; i < valid_modes.size(); ++i)
 	{
 		if (!valid_modes[i].second.empty())

@@ -75,40 +75,63 @@ void server_info::set_password(std::string pass)
 	server_password = pass;
 }
 
+
+
 void server_info::remove_client(int fd)
 {
-	//  // 1️⃣ Find the client before erasing
-    // Client *client_to_remove = NULL;
-    // for (size_t i = 0; i < clients.size(); ++i)
-    // {
-    //     if (clients[i].get_fd() == fd)
-    //     {
-    //         client_to_remove = &clients[i];
-    //         break;
-    //     }
-    // }
-
-    // if (!client_to_remove)
-    //     return;
-
-    // // 2️⃣ Construct QUIT message
-    // std::string quit_msg = ":" + client_to_remove->get_nick() + "!" + client_to_remove->get_username() +
-    //                        "@" + client_to_remove->hostname + " QUIT :Client disconnected\r\n";
-
-    // // 3️⃣ Broadcast to all channels this client is part of
-    // for (size_t i = 0; i < channels.size(); ++i)
-    // {
-    //     if (channels[i].is_client_in_channel(client_to_remove->nickname))
-    //     {
-    //         channels[i].broadcast_to_channel(quit_msg, client_to_remove->fd);
-    //         channels[i].remove_client(client_to_remove->fd);
-    //     }
-    // }
+	client_info *client_connected = NULL;
+	for (size_t i = 0; i < clients_s.size(); i++)
+	{
+		if (clients_s[i].fd == fd)
+			client_connected = &clients_s[i];
+	}
+	if (client_connected)
+	{	
+			std::string quitMsg = ":" + client_connected->nickname + "!" + client_connected->username + 
+							  "@" + get_client_ipp(client_connected->fd) + " QUIT :Client disconnected\r\n";
+			for (size_t i = 0; i < channels.size(); ++i)
+			{
+				for (size_t j = 0; j < channels[i].clients.size();)
+				{
+					if (channels[i].clients[j].nickname == client_connected->nickname)
+					{
+						channels[i].clients.erase(channels[i].clients.begin() + j, channels[i].clients.begin() + j + 1);
+						channels[i].broadcast(quitMsg, *client_connected, 1);
+					}
+					else
+						j++;
+				}
+				for (size_t j = 0; j < channels[i].moderators.size();)
+				{
+					if (channels[i].moderators[j].nickname == client_connected->nickname)
+					{
+						if (channels[i].moderators.size() == 1 && channels[i].clients.size() >= 1)
+						{
+							std::string modeMsg = ":ircserver MODE " + channels[i].name + " +o " + channels[i].clients[0].nickname + "\r\n";
+							channels[i].moderators.erase(channels[i].moderators.begin() + j, channels[i].moderators.begin() + j + 1);
+							channels[i].moderators.push_back(channels[i].clients[0]);
+							channels[i].broadcast(modeMsg, *client_connected, 1);
+						}
+						else if (channels[i].moderators.size() == 1 && channels[i].clients.size() == 0)
+						{
+							channels.erase(channels.begin() + i, channels.begin() + i + 1);
+							++i;
+							break;
+						}
+						else
+							j++;
+					}
+				}
+			}
+	}
 
     close(fd);
     for (size_t i = 0; i < clients.size(); ++i)
         if (clients[i].get_fd() == fd)
             clients.erase(clients.begin() + i);
+    // for (size_t i = 0; i < clients_s.size(); ++i)
+    //     if (clients_s[i].fd == fd)
+    //         clients_s.erase(clients_s.begin() + i);
     for (size_t i = 0; i < pollFds.size(); ++i)
         if (pollFds[i].fd == fd)
             pollFds.erase(pollFds.begin() + i);
@@ -138,7 +161,7 @@ void	server_info::accept_client()
 	struct pollfd tmp2;
 
 	tmp2.fd = client_fd;
-	tmp2.events = POLLIN | POLLOUT;
+	tmp2.events = POLLIN ;
 	tmp2.revents = 0;
 
 	pollFds.push_back(tmp2);
@@ -161,7 +184,7 @@ std::vector<std::string> split_buffer(std::string buffer)
 int	server_info::handle_request(int client_fd)
 {
 	std::string str;
-	std::cout << "request received!" << std::endl;
+	// std::cout << "request received!" << std::endl;
 	char buffer[1024];
 
 	bzero(&buffer, 1024);
@@ -182,8 +205,7 @@ int	server_info::handle_request(int client_fd)
 	buffer[received] = 0;
 	str = buffer;
 	std::cout << buffer;
-	// else
-	// {
+
 		Client *C = get_client(client_fd);
 		if (C->get_fbuffer().size() + str.size() > 512)
 		{
@@ -282,4 +304,4 @@ void server_info::run()
 			}
 		}
 	}
-}	
+}
