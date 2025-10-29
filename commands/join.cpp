@@ -23,6 +23,7 @@ int max_clients(channel &channel)
 
 void send_it(client_info* client, const std::string& message)
 {
+	// if (*(client->poll_check) & POLLOUT)
 	send(client->fd, message.c_str(),message.size(), 0);
 }
 
@@ -65,7 +66,8 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
     	std::string join_msg = ":" + client->nickname + "!" + client->username +
                            "@" + channels[0].get_client_ip(client->fd) +
                            " JOIN :" + add.name + "\r\n";
-    	send(client->fd, join_msg.c_str(), join_msg.size(), 0);
+		// if (*(client->poll_check) & POLLOUT)
+		send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 		std::string user_list = build_names_list(channels[0]);
 		std::string POSTFIX = "\r\n";
 		std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + channels[0].name + " :@" + client->nickname	+ POSTFIX;
@@ -98,7 +100,8 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
 										"@" + channels[i].get_client_ip(client->fd) +
 										" JOIN :" + channels[i].name + "\r\n";
                     channels[i].broadcast(join_msg.c_str(), *client, true);
-					send(client->fd, join_msg.c_str(), join_msg.size(), 0);
+					// if (*(client->poll_check) & POLLOUT)
+						send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 					std::string POSTFIX = "\r\n";
     				std::string server_name = "ircserv";
 					std::string list = build_names_list(channels[i]);
@@ -128,7 +131,8 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
     std::string join_msg = ":" + client->nickname + "!" + client->username +
                         "@" + add.get_client_ip(client->fd) +
                         " JOIN :" + add.name + "\r\n";
-    send(client->fd, join_msg.c_str(), join_msg.size(), 0);
+	// if (*(client->poll_check) & POLLOUT)
+	send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 	std::string POSTFIX = "\r\n";
 	std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + add.name + " :" + list + POSTFIX;
 	send_it(client, msg);

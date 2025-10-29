@@ -1,6 +1,7 @@
 #include "includes/server.hpp"
 #include "includes/helper.hpp"
 #include "includes/channel.hpp"
+#include "includes/client.hpp"
 
 int dup_nick(std::string name, std::vector<Client> clients)
 {
@@ -26,13 +27,11 @@ client_info converter(Client *client)
 
 void send_it(Client client, std::string str)
 {
+	// if (*(client.get_revent()) & POLLOUT)
 	send(client.get_fd(), str.c_str(),str.size(), 0);
 }
 
-void send_it_cl(client_info *client, std::string str)
-{
-	send(client->fd, str.c_str(),str.size(), 0);
-}
+
 
 void    other_prec(std::deque<channel> &channels, std::string str, Client *client)
 {
@@ -219,9 +218,6 @@ std::vector<std::string> split(std::string buffer)
 
 void Commands(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients)
 {
-	for (size_t i = 0; i < tokens.size(); i++)
-		std::cout << tokens[i] << " ";
-	std::cout << std::endl;
 	if (tokens[0] == "JOIN" || tokens[0] == "join")
         join(tokens, channels, client_connected);
     else if (tokens[0] == "MODE" || tokens[0] == "mode")
@@ -252,7 +248,7 @@ void Commands(std::vector<std::string> tokens, std::deque<channel> &channels, cl
         send_numeric(client_connected, "421", tokens[0], "Unknown command");
 }
 
-void	server_info::handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients)
+void server_info::handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients)
 {
 	std::vector<std::string> tokens;
 

@@ -20,7 +20,8 @@ void send_numeric(client_info* client, const std::string& code,
                   const std::string& target, const std::string& message)
 {
     std::string error = numeric_reply(code, client->nickname, target, message);
-    send(client->fd, error.c_str(), error.size(), 0);
+	// if (*(client->poll_check) & POLLOUT)
+	send(client->fd, error.c_str(), error.size(), 0);
 }
 
 // find the channel that has the same name in the list of channels
@@ -54,4 +55,25 @@ client_info* check_if_op(channel* di_channel, std::string client)
 			return &(*it);
 	}
 	return NULL;
+}
+
+void send_it_cl(client_info *client, std::string str)
+{
+	// if (*(client->poll_check) & POLLOUT)
+	send(client->fd, str.c_str(),str.size(), 0);
+}
+
+std::string get_client_ipp(int client_fd)
+{
+    struct sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
+    char ip[INET_ADDRSTRLEN];
+
+    if (getpeername(client_fd, (struct sockaddr*)&addr, &addr_len) == -1)
+        return "unknown";
+
+    if (inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN) == NULL)
+        return "unknown";
+
+    return std::string(ip);
 }

@@ -17,5 +17,8 @@ std::string trim(const std::string& s);
 client_info* check_if_op(channel* di_channel, std::string client);
 client_info* find_client(const std::string &client_to_find, std::vector<client_info> &clients);
 channel* find_channel(const std::string &channel_to_find, std::deque<channel> &channels);
+void send_it(Client client, std::string str);
+void send_it_cl(client_info *client, std::string str);
+std::string get_client_ipp(int client_fd);
 
 #endif

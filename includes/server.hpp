@@ -3,6 +3,7 @@
 
 #include "channel.hpp"
 #include "client.hpp"
+#include <cerrno>
 
 class server_info
 {
@@ -39,11 +40,12 @@ class server_info
 		
 		void init();
 		void run();
-		int handle_request(int client_fd);
+		void handle_request(int client_fd);
 		Client *get_client(int fd);
 		void accept_client();
 		void remove_client(int fd);
-		void	handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients);};
+    	void handle_auth(std::string buffer, Client *client_connected, std::vector<Client> &clients);
+};
 
 int 	auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &clients, std::string s_pass, std::deque<channel> &channels);
 std::vector<std::string> split(std::string buffer);
