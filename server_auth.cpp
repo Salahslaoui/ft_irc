@@ -13,6 +13,18 @@ int dup_nick(std::string name, std::vector<Client> clients)
     return (0);
 }
 
+client_info converter(Client *client)
+{
+    client_info tmp;
+
+    tmp.username = client->get_username();
+    tmp.nickname = client->get_nick();
+    tmp.fd = client->get_fd();
+    tmp.has_register = client->get_regt();
+	tmp.poll_check = client->get_revent();
+    return (tmp);
+}
+
 void send_it(Client client, std::string str)
 {
 	if (*(client.get_revent()) & POLLOUT)
@@ -30,7 +42,11 @@ void    other_prec(std::deque<channel> &channels, std::string str, Client *clien
         for (size_t j = 0; j < channels[i].clients.size();)
         {
             if (client->get_nick() == channels[i].clients[j].nickname)
+			{
+				std::string msg = ":" + channels[i].clients[j].nickname + "!" + client->get_username() + "@ircserv NICK :" + str + "\r\n";
                 channels[i].clients[j].nickname = str;
+				channels[i].broadcast(msg, converter(client), 0);
+			}
             else
                 j++;
         }
@@ -165,10 +181,25 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
             client->set_real_name(tokens[4]);
         }
     }
-    if (client->get_pass_auth() && client->get_user_auth() && client->get_nick_auth())
+    if (client->get_pass_auth() && client->get_user_auth() && client->get_nick_auth() && client->get_flag())
     {
         client->set_regt(1);
+		client->set_flag(0);
         std::cout << "Client registred" << std::endl;
+		std::string nick = client->get_nick();
+		std::string server_name = "ircserv";
+
+		std::string welcome =
+			":" + server_name + " 001 " + nick + " :Welcome to the IRC network, " + nick + "!\r\n" +
+			":" + server_name + " 002 " + nick + " :Your host is " + server_name + "\r\n" +
+			":" + server_name + " 003 " + nick + " :This server was created today\r\n" +
+			":" + server_name + " 004 " + nick + " " + server_name + " 1.0 o o\r\n" +
+			":" + server_name + " 375 " + nick + " :- " + server_name + " Message of the day - \r\n" +
+			":" + server_name + " 372 " + nick + " :- Welcome to this minimal IRC server!\r\n" +
+			":" + server_name + " 376 " + nick + " :End of /MOTD command.\r\n";
+
+		send(client->get_fd(), welcome.c_str(), welcome.size(), 0);
+		std::cout << "Client registered: " << client->get_nick() << " (" << client->get_username() << ")" << std::endl;
         return (client->get_regt());
     }
     return (client->get_regt());
@@ -185,21 +216,9 @@ std::vector<std::string> split(std::string buffer)
 	return tmp;
 }
 
-client_info converter(Client *client)
-{
-    client_info tmp;
-
-    tmp.username = client->get_username();
-    tmp.nickname = client->get_nick();
-    tmp.fd = client->get_fd();
-    tmp.has_register = client->get_regt();
-	tmp.poll_check = client->get_revent();
-    return (tmp);
-}
-
 void Commands(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients)
 {
-	for (int i = 0; i < tokens.size(); i++)
+	for (size_t i = 0; i < tokens.size(); i++)
 		std::cout << tokens[i] << " ";
 	std::cout << std::endl;
 	if (tokens[0] == "JOIN" || tokens[0] == "join")
@@ -237,8 +256,9 @@ void server_info::handle_auth(std::string buffer, Client *client_connected, std:
 	std::vector<std::string> tokens;
 
 	tokens = split(buffer);
-    if (tokens.empty())
-        return ;
+    if (tokens.empty()) {
+        return;
+    }
 
 	if (!auth(tokens, client_connected, clients, server_password, channels))
 		return ;

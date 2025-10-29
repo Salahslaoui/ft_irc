@@ -81,7 +81,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
                 }
 				std::string broadcast_msg = ":" + client_connected->nickname + "!~" + client_connected->username +
 							"@" + get_client_ipp(client_connected->fd) + " PRIVMSG " + clients[j].nickname + " :" + msg;
-                send_it_cl(client_connected, broadcast_msg);
+                send_it_cl(&clients[j], broadcast_msg);
                 flag = 1;
                 break;
             }

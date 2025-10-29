@@ -15,6 +15,7 @@ class Client
         int user_auth;
         int nick_auth;
         int fd;
+		int flag;
 		short *poll_check;
     public:
         Client();
@@ -28,6 +29,7 @@ class Client
         int get_user_auth();
         int get_nick_auth();
         int get_regt();
+        int get_flag();
         int get_fd();
 		short *get_revent();
     // setters
@@ -39,6 +41,7 @@ class Client
         void set_user_auth(int set);
         void set_nick_auth(int set);
         void set_regt(int set);
+        void set_flag(int set);
         void set_fd(int set);
 		void set_revent(short *nvent);
     // tools

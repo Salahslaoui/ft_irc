@@ -254,7 +254,7 @@ void server_info::run()
 	{
 		if (poll(&pollFds[0], pollFds.size(), -1) == -1)
 			throw std::runtime_error("poll faiiiiiiiiiiiled!");
-		for (int i = 0; i < pollFds.size() ; i++)
+		for (size_t i = 0; i < pollFds.size() ; i++)
 		{
 			if (pollFds[i].revents & POLLIN)
 			{
