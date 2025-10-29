@@ -11,7 +11,37 @@ int dup_nick(std::string name, std::vector<Client> clients)
     return (0);
 }
 
-int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &clients, std::string s_pass)
+void    other_prec(std::deque<channel> &channels, std::string str, Client *client)
+{
+    if (str == client->get_nick())
+        return;
+    for (size_t i = 0; i < channels.size(); ++i)
+    {
+        for (size_t j = 0; j < channels[i].clients.size();)
+        {
+            if (client->get_nick() == channels[i].clients[j].nickname)
+                channels[i].clients[j].nickname = str;
+            else
+                j++;
+        }
+        for (size_t j = 0; j < channels[i].moderators.size();)
+        {
+            if (client->get_nick() == channels[i].moderators[j].nickname)
+                channels[i].moderators[j].nickname = str;
+            else
+                j++;
+        }
+        for (size_t j = 0; j < channels[i].invited.size();)
+        {
+            if (client->get_nick() == channels[i].invited[j].nickname)
+                channels[i].invited[j].nickname = str;
+            else
+                j++;
+        }
+    }
+}
+
+int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &clients, std::string s_pass, std::deque<channel> &channels)
 {
 	std::string str = "";
 	if (tokens[0] == "PASS" || tokens[0] == "pass")
@@ -63,13 +93,13 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
             str += " * : You have not registered\r\n";
             return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
         }
-        else if (client->get_nick_auth())
-        {
-			str += ":ircserv ";
-			str += ERR_ALREADYREGISTERED;
-			str += " * :Already registred\r\n";
-			return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
-        }
+        // else if (client->get_nick_auth())
+        // {
+		// 	str += ":ircserv ";
+		// 	str += ERR_ALREADYREGISTERED;
+		// 	str += " * :Already registred\r\n";
+		// 	return (send(client->get_fd(), str.c_str(), str.size(), 0), 0);
+        // }
         else if (dup_nick(tokens[1], clients))
         {
             str += ":ircserv ";
@@ -81,8 +111,10 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
         }
         else
         {
+            other_prec(channels, tokens[1], client);
             client->set_nick(tokens[1]);
             client->set_nick_auth(1);
+            return (0);
         }
     }
 
@@ -127,6 +159,7 @@ int auth(std::vector<std::string> tokens, Client *client, std::vector<Client> &c
     {
         client->set_regt(1);
         std::cout << "Client registred" << std::endl;
+        return (client->get_regt());
     }
     return (client->get_regt());
 }
@@ -149,11 +182,12 @@ client_info converter(Client *client)
     tmp.username = client->get_username();
     tmp.nickname = client->get_nick();
     tmp.fd = client->get_fd();
+    tmp.has_register = client->get_regt();
     return (tmp);
 }
 
 void Commands(std::vector<std::string> tokens, std::deque<channel> &channels, client_info *client_connected, std::vector<client_info> &clients)
-{  
+{
 	for (int i = 0; i < tokens.size(); i++)
 		std::cout << tokens[i] << " ";
 	std::cout << std::endl;
@@ -192,15 +226,22 @@ void	server_info::handle_auth(std::string buffer, Client *client_connected, std:
 	std::vector<std::string> tokens;
 
 	tokens = split(buffer);
-	if (client_connected->get_regt() == 0 && !auth(tokens, client_connected, clients, server_password))
-		return ;
-    if (tokens[0] == "USER" || tokens[0] == "user")
+    if (tokens.empty())
         return ;
+
+	if (!auth(tokens, client_connected, clients, server_password, channels))
+		return ;
+    // if (tokens[0] == "USER" || tokens[0] == "user")
+    //     return ;
     Cl = converter(client_connected);
+    clients_s.clear();
     for (size_t i = 0; i < clients.size(); ++i)
     {
         client_info tmp = converter(&clients[i]);
         clients_s.push_back(tmp);
     }
+    if (tokens[0] == "PASS" || tokens[0] == "NICK" || tokens[0] == "USER"
+        || tokens[0] == "pass" || tokens[0] == "nick" || tokens[0] == "user")
+        return;
     Commands(tokens, channels, &Cl, clients_s);
 }
