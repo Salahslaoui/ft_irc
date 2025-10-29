@@ -39,7 +39,7 @@ class server_info
 		
 		void init();
 		void run();
-		void handle_request(int client_fd);
+		int handle_request(int client_fd);
 		Client *get_client(int fd);
 		void accept_client();
 		void remove_client(int fd);

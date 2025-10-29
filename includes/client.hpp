@@ -39,7 +39,6 @@ class Client
         void set_nick_auth(int set);
         void set_regt(int set);
         void set_fd(int set);
-
     // tools
 
 };

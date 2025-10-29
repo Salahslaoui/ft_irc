@@ -51,6 +51,7 @@ int Client::get_fd()
     return (fd);
 }
 
+
 void Client::set_nick(std::string set)
 {
     nickname = set;

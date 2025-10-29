@@ -76,6 +76,34 @@ void server_info::set_password(std::string pass)
 
 void server_info::remove_client(int fd)
 {
+	//  // 1️⃣ Find the client before erasing
+    // Client *client_to_remove = NULL;
+    // for (size_t i = 0; i < clients.size(); ++i)
+    // {
+    //     if (clients[i].get_fd() == fd)
+    //     {
+    //         client_to_remove = &clients[i];
+    //         break;
+    //     }
+    // }
+
+    // if (!client_to_remove)
+    //     return;
+
+    // // 2️⃣ Construct QUIT message
+    // std::string quit_msg = ":" + client_to_remove->get_nick() + "!" + client_to_remove->get_username() +
+    //                        "@" + client_to_remove->hostname + " QUIT :Client disconnected\r\n";
+
+    // // 3️⃣ Broadcast to all channels this client is part of
+    // for (size_t i = 0; i < channels.size(); ++i)
+    // {
+    //     if (channels[i].is_client_in_channel(client_to_remove->nickname))
+    //     {
+    //         channels[i].broadcast_to_channel(quit_msg, client_to_remove->fd);
+    //         channels[i].remove_client(client_to_remove->fd);
+    //     }
+    // }
+
     close(fd);
     for (size_t i = 0; i < clients.size(); ++i)
         if (clients[i].get_fd() == fd)
@@ -88,12 +116,11 @@ void server_info::remove_client(int fd)
 
 void	server_info::accept_client()
 {
-	Client inst;
 	std::cout << "client acccepted 7ashak!" << std::endl;
-	sockaddr_in tmp;
+	Client inst;
+	struct sockaddr_in tmp;
 	bzero(&tmp, sizeof(sockaddr_in));
-	socklen_t size = sizeof(sockaddr_in);
-	// fcntl ... ... .
+	socklen_t size = sizeof(tmp);
 	int client_fd = accept(socket_fd, (sockaddr *)&tmp, &size);
 	if (client_fd == -1)
 	{
@@ -103,13 +130,14 @@ void	server_info::accept_client()
 	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "Error: fcntl failed" << std::endl;
+		close (client_fd);
 		return;
 	}
 
 	struct pollfd tmp2;
 
 	tmp2.fd = client_fd;
-	tmp2.events = POLLIN;
+	tmp2.events = POLLIN | POLLOUT;
 	tmp2.revents = 0;
 
 	pollFds.push_back(tmp2);
@@ -128,7 +156,7 @@ std::vector<std::string> split_buffer(std::string buffer)
 	return (cmds);
 }
 
-void	server_info::handle_request(int client_fd)
+int	server_info::handle_request(int client_fd)
 {
 	std::string str;
 	std::cout << "request received!" << std::endl;
@@ -139,15 +167,15 @@ void	server_info::handle_request(int client_fd)
 	int received = recv(client_fd, buffer, 1024, 0);
 	if (received == -1) 
 	{
-		remove_client(client_fd);
 		std::cerr << "recv failed!!" << std::endl;
-		return ;
+		remove_client(client_fd);
+		return -1;
 	}
 	else if (received == 0)
 	{
 		std::cout << "client disconnected" << std::endl;
 		remove_client(client_fd);
-		return ;
+		return  -1;
 	} 
 	buffer[received] = 0;
 	str = buffer;
@@ -178,7 +206,7 @@ void	server_info::handle_request(int client_fd)
 		for (size_t i = 0; i < commands.size(); ++i)
 			handle_auth(commands[i], C, clients);
 		C->set_fbuffer("");
-	// }
+	return 0;
 }
 
 void server_info::init()
@@ -201,10 +229,10 @@ void server_info::init()
 	struct sockaddr_in server_address;
     std::memset(&server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(port);
     server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_port = htons(port);
 
-	if (bind(socket_fd, (struct sockaddr*)(&server_address), sizeof(sockaddr_in)) < 0)
+	if (bind(socket_fd, (struct sockaddr*)(&server_address), sizeof(server_address)) < 0)
 	{
 		close(socket_fd);
 		throw std::runtime_error("Error: can't bind to port");
@@ -217,7 +245,6 @@ void server_info::init()
 
 	struct pollfd s_poll;
     s_poll.fd = socket_fd;
-
     s_poll.events = POLLIN | POLLOUT | POLLERR;
     s_poll.revents = 0;
     pollFds.push_back(s_poll);
@@ -247,21 +274,22 @@ void server_info::run()
 				{
 					if (pollFds[i].revents & POLLIN)
 						accept_client();
-					// if (e.revents & POLLOUT)
-					// 	// NOTHING
-
 				}
 				else
 				{
-					if (pollFds[i].events & POLLIN  && !(pollFds[i].revents & POLLERR)) {
-						// std::cout << "masked!" << (e.fd & POLLIN) << std::endl;
-						handle_request(pollFds[i].fd);
-					}
-					if (pollFds[i].revents & POLLERR) 
+					if (pollFds[i].events & POLLIN  && !(pollFds[i].revents & POLLERR))
 					{
-						remove_client(pollFds[i].fd);
-						i--;
+						if (handle_request(pollFds[i].fd))
+							i--;
 					}
+				}
+			}
+			if (pollFds[i].revents & POLLERR) 
+			{
+				if (pollFds[i].fd != socket_fd)
+				{
+					remove_client(pollFds[i].fd);
+					i--;
 				}
 			}
 		}

@@ -70,6 +70,11 @@
 		"numeric": "cpp",
 		"random": "cpp",
 		"numbers": "cpp",
-		"list": "cpp"
+		"list": "cpp",
+		"__functional_03": "cpp",
+		"fstream": "cpp",
+		"iomanip": "cpp",
+		"set": "cpp",
+		"stack": "cpp"
 	}
 }
