@@ -21,27 +21,27 @@ void topic(std::vector<std::string> tokens, std::deque<channel> &channels, clien
 	
 	// checks if it has valid args
 	if (tokens.size() < 2 || (tokens[1][0] == ':' && tokens[1].size() == 1))
-		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "TOPIC", "Not enough parameters\n"));
+		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "TOPIC", "Not enough parameters"));
 
 	// checks if the channel name exists
 	channel_name = tokens[1];
 	if (!(di_channel = find_channel(channel_name, channels)))
-		return (send_numeric(client_connected, ERR_NOSUCHCHANNEL, channel_name, "No such channel\n"));
+		return (send_numeric(client_connected, ERR_NOSUCHCHANNEL, channel_name, "No such channel"));
 
 	// check if the client is a member in the channel
 	if (!find_client(client_connected->nickname, di_channel->clients))
-		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel\n"));
+		return (send_numeric(client_connected, ERR_NOTONCHANNEL, channel_name, "You're not on that channel"));
 	
 		// check if the client is an operator
 	if (di_channel->t && !check_if_op(di_channel, client_connected->nickname) && tokens.size() != 2)
-		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator\n"));
+		return (send_numeric(client_connected, ERR_CHANOPRIVSNEEDED, channel_name, "You're not channel operator"));
 
 	if (tokens.size() == 2)
 	{
 		if (!(di_channel->topic_flag))
 			return (send_numeric(client_connected, RPL_TOPIC, channel_name, di_channel->topic));
 		else
-			return (send_numeric(client_connected, RPL_NOTOPIC, channel_name, "No topic is set\n"));
+			return (send_numeric(client_connected, RPL_NOTOPIC, channel_name, "No topic is set"));
 	}
 	else
 	{

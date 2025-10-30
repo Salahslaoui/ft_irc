@@ -131,12 +131,10 @@ void server_info::remove_client(int fd)
 }
 
 
-
-
 void	server_info::accept_client()
 {
 	Client inst;
-	std::cout << "client acccepted 7ashak!" << std::endl;
+	std::cout << "client acccepted!" << std::endl;
 	sockaddr_in tmp;
 	bzero(&tmp, sizeof(sockaddr_in));
 	socklen_t size = sizeof(sockaddr_in);

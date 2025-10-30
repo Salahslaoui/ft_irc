@@ -20,7 +20,6 @@ void send_numeric(client_info* client, const std::string& code,
                   const std::string& target, const std::string& message)
 {
     std::string error = numeric_reply(code, client->nickname, target, message);
-	// if (*(client->poll_check) & POLLOUT)
 	send(client->fd, error.c_str(), error.size(), 0);
 }
 

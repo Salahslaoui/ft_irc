@@ -32,7 +32,7 @@ void    other_prec(std::deque<channel> &channels, std::string str, Client *clien
         {
             if (client->get_nick() == channels[i].clients[j].nickname)
 			{
-				std::string msg = ":" + channels[i].clients[j].nickname + "!" + client->get_username() + "@ircserv NICK :" + str + "\r\n";
+				std::string msg = ":" + channels[i].clients[j].nickname + "!" + client->get_username() + "@ircserv NICK :" + str;
                 channels[i].clients[j].nickname = str;
 				channels[i].broadcast(msg, converter(client), 0);
 			}

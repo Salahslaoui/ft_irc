@@ -91,7 +91,7 @@ void    check_and_send(std::vector<std::string> targets, std::deque<channel> &ch
             flag = 0;
             continue;
         }
-        return (send_numeric(client_connected, ERR_NOSUCHNICK, "PRIVMSG", "This client doesn't exist\r\n"));
+        return (send_numeric(client_connected, ERR_NOSUCHNICK, "PRIVMSG", "This client doesn't exist"));
     }
 }
 

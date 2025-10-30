@@ -66,7 +66,6 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
     	std::string join_msg = ":" + client->nickname + "!" + client->username +
                            "@" + channels[0].get_client_ip(client->fd) +
                            " JOIN :" + add.name + "\r\n";
-		// if (*(client->poll_check) & POLLOUT)
 		send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 		std::string user_list = build_names_list(channels[0]);
 		std::string POSTFIX = "\r\n";
@@ -88,20 +87,18 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                         return (send_numeric(client, ERR_USERONCHANNEL, "JOIN", "User already exist in this channel"));
                 }
                 if (channels[i].l && max_clients(channels[i]))
-                    return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "the limit is reached\r\n"));
+                    return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "the limit is reached"));
                 else if (channels[i].k && it->second != channels[i].key)
-                    return (send_numeric(client, ERR_BADCHANNELKEY, "JOIN", "Key is wrong\r\n"));
+                    return (send_numeric(client, ERR_BADCHANNELKEY, "JOIN", "Key is wrong"));
                 else if (channels[i].i && !client_invited(channels[i], client))
-                    return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel\r\n"));
+                    return (send_numeric(client, ERR_INVITEONLYCHAN, "JOIN", "Invite only channel"));
                 else
                 {
                     channels[i].clients.push_back(*client);
 					std::string join_msg = ":" + client->nickname + "!" + client->username +
 										"@" + channels[i].get_client_ip(client->fd) +
-										" JOIN :" + channels[i].name + "\r\n";
-                    channels[i].broadcast(join_msg.c_str(), *client, true);
-					// if (*(client->poll_check) & POLLOUT)
-						send(client->fd, join_msg.c_str(), join_msg.size(), 0);
+										" JOIN :" + channels[i].name;
+                    channels[i].broadcast(join_msg.c_str(), *client, false);
 					std::string POSTFIX = "\r\n";
     				std::string server_name = "ircserv";
 					std::string list = build_names_list(channels[i]);
@@ -114,7 +111,7 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
                 }
             }
             else
-                return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "The Channel is full\r\n"));
+                return (send_numeric(client, ERR_CHANNELISFULL, "JOIN", "The Channel is full"));
         }
     }
     channel add;
@@ -131,7 +128,6 @@ void    create_channel(std::deque<channel> &channels, std::map<std::string, std:
     std::string join_msg = ":" + client->nickname + "!" + client->username +
                         "@" + add.get_client_ip(client->fd) +
                         " JOIN :" + add.name + "\r\n";
-	// if (*(client->poll_check) & POLLOUT)
 	send(client->fd, join_msg.c_str(), join_msg.size(), 0);
 	std::string POSTFIX = "\r\n";
 	std::string msg = ":" + server_name + " " + RPL_NAMREPLY + " " + client->nickname + " = " + add.name + " :" + list + POSTFIX;
@@ -150,7 +146,7 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
 
     std::map<std::string, std::string> _channel;
     if (tokens.size() > 3 || tokens.size() < 2)
-		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters\r\n"));
+		return (send_numeric(client_connected, ERR_NEEDMOREPARAMS, "JOIN", "invalid parameters"));
     chan = tokens[1];
     if (tokens.size() == 3)
         ky = tokens[2];
@@ -162,12 +158,12 @@ void join(std::vector<std::string> tokens, std::deque<channel> &channels, client
     {
         if (tmp[0] != '#' && tmp[0] != '&')
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "No such channel\r\n");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "No such channel");
             continue;
         }
         if (tmp.find(7) != std::string::npos || tmp.size() > 20)
         {
-            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name\r\n");
+            send_numeric(client_connected, ERR_BADCHANNAME, "JOIN", "Invalid channel name");
             continue;
         }
         if (ky == "")

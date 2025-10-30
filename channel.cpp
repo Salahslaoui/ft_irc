@@ -26,10 +26,14 @@ bool channel::remove_moderator(std::string nickname)
 
     if (moderators.empty() && !clients.empty())
     {
-        moderators.push_back(clients.front());
+		client_info new_mod = clients.front();
+        moderators.push_back(new_mod);
 
         std::cout << "Promoted " << clients.front().nickname
                   << " to channel operator for " << name << std::endl;
+		std::string msg = ":" + new_mod.nickname + "!~" + new_mod.username +
+	                            "@" + get_client_ip(new_mod.fd) + " MODE " + name + " +o " + new_mod.nickname;
+		broadcast(msg, new_mod, false);
     }
 
     if (clients.empty())
